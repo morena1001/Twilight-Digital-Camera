@@ -1,0 +1,25 @@
+- Develop drivers for components and test them individually
+  - Set up development environment for MCU
+  - Take pictures with camera integrated into MCU
+    - Create driver for camera
+    - Use external button to trigger photo capture
+    - Use Arduino SD library to save photos onto integrated SD card slot for testing
+  - Output photos to LCD display
+    - Create driver for the LCD display
+    - Transform photo editor effects into DSP algorithms to achieve the Twilight movie effect
+  - Use external SD card slot module to save photos
+    - Use another external button to save photos onto SD card slot
+  - Use speaker for audial feedback
+    - One sound for taking pictures, one for saving photos, and (one for powering up camera ?)
+- Combine all components together to test the whole system
+  - Use LiPo battery to power all components
+  - Use press and hold button to power system on and off
+- (Create a simple PCB for cleaner wiring ?)
+- Design case for camera
+  - Classic camera look
+    - Lens jutting out the front
+    - Viewfinder on the top right corner
+    - SD card slot and power button on left side
+    - Photo capturing button on top
+    - USB-C port on bottom
+    - Photo save button on right side
