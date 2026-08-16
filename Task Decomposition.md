@@ -1,8 +1,8 @@
 - [ ] Develop drivers for components and test them individually
   - [x] Set up development environment for MCU
-  - [ ] Take pictures with camera integrated into MCU
+  - [x] Take pictures with camera integrated into MCU
     - [x] Create driver for camera
-    - [ ] Use external button to trigger photo capture
+    - [x] Use external button to trigger photo capture
     - [x] Use Arduino SD library to save photos onto integrated SD card slot for testing
   - [ ] Output photos to LCD display
     - [ ] Create driver for the LCD display
