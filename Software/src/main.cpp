@@ -3,8 +3,9 @@
 
 #include "camera.h"
 
-#define CAPTURE_PIN 1
-#define DB_DELAY    50
+#define CAPTURE_PIN     1
+#define SD_CARD_PIN     44
+#define DB_DELAY        50
 
 Camera camera;
 unsigned long capture_last_db_time = 0;
@@ -19,24 +20,23 @@ void setup () {
 
     if (camera.Init_Camera () != ESP_OK)    return;
 
-    // Init SD card
-    if (!SD.begin (21)) {
-    Serial.println ("Card mount failed");
-    return;
+    if (!SD.begin (SD_CARD_PIN)) {
+        Serial.println ("Card mount failed");
+        return;
     }
     uint8_t card_type = SD.cardType ();
 
     if (card_type == CARD_NONE) {
-    Serial.println ("No SD card attached");
-    return;
+        Serial.println ("No SD card attached");
+        return;
     }
 
     Serial.print ("SD card type: ");
     switch (card_type) {
-    case CARD_MMC:    Serial.println ("MMC"); break;
-    case CARD_SD:     Serial.println ("SDSC"); break;
-    case CARD_SDHC:   Serial.println ("SDHC"); break;
-    default:          Serial.println ("Unkown"); break;
+        case CARD_MMC:    Serial.println ("MMC"); break;
+        case CARD_SD:     Serial.println ("SDSC"); break;
+        case CARD_SDHC:   Serial.println ("SDHC"); break;
+        default:          Serial.println ("Unkown"); break;
     }
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
