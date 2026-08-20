@@ -9,6 +9,7 @@
   - [ ] Transform photo editor effects into DSP algorithms to achieve the Twilight movie effect
   - [ ] Use external SD card slot module to save photos
     - [ ] Use another external button to save photos onto SD card slot
+    - [ ] Check when saving if an SD card is in the slot  
   - [ ] Use speaker for audial feedback
     - [ ] One sound for taking pictures, one for saving photos, and (one for powering up camera ?)
 - [ ] Combine all components together to test the whole system
