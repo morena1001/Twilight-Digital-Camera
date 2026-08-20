@@ -20,24 +20,8 @@ void setup () {
 
     if (camera.Init_Camera () != ESP_OK)    return;
 
-    if (!SD.begin (SD_CARD_PIN)) {
-        Serial.println ("Card mount failed");
-        return;
-    }
-    uint8_t card_type = SD.cardType ();
-
-    if (card_type == CARD_NONE) {
-        Serial.println ("No SD card attached");
-        return;
-    }
-
-    Serial.print ("SD card type: ");
-    switch (card_type) {
-        case CARD_MMC:    Serial.println ("MMC"); break;
-        case CARD_SD:     Serial.println ("SDSC"); break;
-        case CARD_SDHC:   Serial.println ("SDHC"); break;
-        default:          Serial.println ("Unkown"); break;
-    }
+    if (!SD.begin (SD_CARD_PIN))            return;
+    if (SD.cardType () == CARD_NONE)        return;
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
 
