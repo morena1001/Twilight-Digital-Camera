@@ -120,7 +120,7 @@ void setup () {
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_CASET);
         digitalWrite (ST7789V3_DC_PIN, HIGH);
-        byte col_win[4] = { 0x00, 0x00, 0x00, 0xEE };
+        byte col_win[4] = { 0x00, 0x22, 0x00, 0xCE };
         SPI.transfer (col_win, 4);
         digitalWrite (ST7789V3_CS_PIN, HIGH);
 
@@ -129,7 +129,7 @@ void setup () {
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_RASET);
         digitalWrite (ST7789V3_DC_PIN, HIGH);
-        byte row_win[4] = { 0x00, 0x00, 0x01, 0x3E };
+        byte row_win[4] = { 0x00, 0x00, 0x01, 0x40 };
         SPI.transfer (row_win, 4);
         digitalWrite (ST7789V3_CS_PIN, HIGH);
 
@@ -138,8 +138,8 @@ void setup () {
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_RAMWR);
         digitalWrite (ST7789V3_DC_PIN, HIGH);
-        byte pixel_data[3] = { 0xFC, 0xFC, 0xFC };
-        for (int i = 0; i < 240; i++) {
+        byte pixel_data[3] = { 0x7E, 0x00, 0x00 };
+        for (int i = 0; i < 172; i++) {
             for (int j = 0; j < 320; j++) {
                 // SPI.transfer (pixel_data, 3);
                 SPI.transfer (pixel_data[0]);
