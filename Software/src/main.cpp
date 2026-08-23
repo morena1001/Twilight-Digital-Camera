@@ -8,6 +8,8 @@
 #define ST7789V3_CMD_SWRESET    0x01
 #define ST7789V3_CMD_SLPIN      0x10
 #define ST7789V3_CMD_SLPOUT     0x11
+#define ST7789V3_CMD_INVOFF     0x20
+#define ST7789V3_CMD_INVON      0x21
 #define ST7789V3_CMD_DISPOFF    0x28
 #define ST7789V3_CMD_DISPON     0x29
 #define ST7789V3_CMD_CASET      0x2A
@@ -92,6 +94,12 @@ void setup () {
     SPI.transfer (0x00);
     digitalWrite (ST7789V3_CS_PIN, HIGH);
 
+    // Display inversion on
+    digitalWrite (ST7789V3_CS_PIN, LOW);
+    digitalWrite (ST7789V3_DC_PIN, LOW);
+    SPI.transfer (ST7789V3_CMD_INVON);
+    digitalWrite (ST7789V3_CS_PIN, HIGH);
+
     // // Idle mode off
     // digitalWrite (ST7789V3_CS_PIN, LOW);
     // digitalWrite (ST7789V3_DC_PIN, LOW);
@@ -130,9 +138,9 @@ void setup () {
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_RAMWR);
         digitalWrite (ST7789V3_DC_PIN, HIGH);
-        byte pixel_data[3] = { 0x00, 0x00, 0x00 };
-        for (int i = 0; i < 239; i++) {
-            for (int j = 0; j < 319; j++) {
+        byte pixel_data[3] = { 0xFC, 0xFC, 0xFC };
+        for (int i = 0; i < 240; i++) {
+            for (int j = 0; j < 320; j++) {
                 // SPI.transfer (pixel_data, 3);
                 SPI.transfer (pixel_data[0]);
                 SPI.transfer (pixel_data[1]);
@@ -165,7 +173,7 @@ void setup () {
         digitalWrite (ST7789V3_CS_PIN, HIGH);
 
         // Write pixel data
-        byte pixel_data_1[3] = { 0xFC, 0xFC, 0x7E };
+        byte pixel_data_1[3] = { 0x00, 0x00, 0x7E };
         digitalWrite (ST7789V3_CS_PIN, LOW);
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_RAMWR);
@@ -204,7 +212,7 @@ void setup () {
         digitalWrite (ST7789V3_CS_PIN, HIGH);
 
         // Write pixel data
-        byte pixel_data_2[3] = { 0xFC, 0xFC, 0x00 };
+        byte pixel_data_2[3] = { 0x00, 0x00, 0xFC };
         digitalWrite (ST7789V3_CS_PIN, LOW);
         digitalWrite (ST7789V3_DC_PIN, LOW);
         SPI.transfer (ST7789V3_CMD_RAMWR);
