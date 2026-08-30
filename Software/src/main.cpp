@@ -1,34 +1,81 @@
+#include "Arduino.h"
 #include "Preferences.h"
 
+#include "camera.h"
 #include "ST7789V3.h"
+#include "TJpg_Decoder.h"
 
 #define CAPTURE_PIN     1
 #define SD_CARD_PIN     44
 #define DB_DELAY        50
 
+Camera camera;
 ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
+
+bool sd_detected = false;
+unsigned long capture_last_db_time = 0;
+unsigned long capture_last_press_time = 0;
+int capture_state = LOW;
+int capture_last_state = LOW;
+
+Preferences preferences;
+
+bool callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    if (y >= SCREEN_LENGTH)     return false;
+    st7789v3.Set_Window_Location_Size (x, w, y, h);
+    st7789v3.Draw_Pixels (bitmap, w * h);   
+    return true;
+}
 
 void setup () {
     Serial.begin (115200);
     while (!Serial);
 
-    st7789v3.Init_ST7789V3 (false);
+    if (camera.Init_Camera () != ESP_OK)    return;
 
-    // Set entire screen to white
-    byte pixel_data[3] = { 0x7E, 0x00, 0x00 };
+    if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_detected = true;
+    else    Serial.println ("Micro sd card not detected. Unable to save photos");
+
+    st7789v3.Init_ST7789V3 (true);
+
+    // Reset screen
+    byte pixel_data[3] = { 0xFC, 0xFC, 0xFC };
     st7789v3.Fill_Screen (pixel_data);
 
-    // Write a box to the screen
-    st7789v3.Set_Window_Location (0x0062, 0x007C, 0x0085, 0x00A9);
-    byte pixel_data_1[3] = { 0x00, 0x00, 0x7E };
-    st7789v3.Draw_Block (pixel_data_1, 0x001A, 0x24);
+    TJpgDec.setJpgScale (4);
+    TJpgDec.setCallback (callback);
 
-    // Write a box to the screen   
-    st7789v3.Set_Window_Location (0x0084, 0x00AE, 0x00C7, 0x00DB);
-    byte pixel_data_2[3] = { 0x00, 0x00, 0xFC };
-    st7789v3.Draw_Block (pixel_data_2, 0x002A, 0x14);
+
+    pinMode (CAPTURE_PIN, INPUT_PULLUP);
+
+    preferences.begin ("memory", false);
+    camera.Set_Image_Count (preferences.getUInt ("counter", 1));
+
+    Serial.println ("Begin photo capture");
 }
 
 void loop () {
 
+    int capture_reading = digitalRead (CAPTURE_PIN);
+
+    if (capture_reading != capture_last_state)  capture_last_db_time = millis ();
+
+    if ((millis () - capture_last_db_time) > DB_DELAY && capture_reading != capture_state) {
+        capture_state = capture_reading;
+        if (capture_state == LOW) {
+            Serial.println ("Trying to display photo");
+            camera_fb_t *fb = esp_camera_fb_get ();
+            if (!fb)    Serial.println ("Could not get photo buffer");
+            TJpgDec.drawJpg (RAM_WIDTH_START, RAM_LENGTH_START, fb->buf, fb->len);
+            esp_camera_fb_return (fb);
+            Serial.println ("Displayed");
+            
+            // if (sd_detected) {
+            //     camera.Photo_Save ();
+            //     preferences.putUInt ("counter", camera.Get_Image_Count ());
+            // } else      Serial.println ("Unable to save photo, try again");
+        }
+    }
+
+    capture_last_state = capture_reading;
 }

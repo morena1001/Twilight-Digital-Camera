@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "TJpg_Decoder.h"
 #include "ST7789V3.h"
 
 ST7789V3::ST7789V3 (uint8_t cs_pin, uint8_t dc_pin, uint8_t rst_pin) {
@@ -93,6 +94,18 @@ void ST7789V3::Draw_Pixels (uint32_t *color, uint16_t length) {
         rgb[0] = (uint8_t) (color[i] >> 0x10);
         rgb[1] = (uint8_t) ((color[i] >> 0x08) & 0xFF);
         rgb[2] = (uint8_t) (color[i] & 0xFF);
+        Transmit_Multiple_Data (rgb, 3);
+    }
+}
+
+void ST7789V3::Draw_Pixels (uint16_t *color, uint16_t length) {
+    uint8_t rgb[3];
+
+    Transmit_Cmd (ST7789V3_CMD_RAMWR);
+    for (uint16_t i = 0; i < length; i++) {
+        rgb[0] = (uint8_t) (color[i] >> 0x08) & 0xF8;
+        rgb[1] = (uint8_t) ((color[i] >> 0x03) & 0xFC);
+        rgb[2] = (uint8_t) (color[i] << 0x03);
         Transmit_Multiple_Data (rgb, 3);
     }
 }

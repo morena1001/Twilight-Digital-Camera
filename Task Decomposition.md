@@ -10,6 +10,7 @@
   - [ ] Use external SD card slot module to save photos
     - [ ] Use another external button to save photos onto SD card slot
     - [ ] Check when saving if an SD card is in the slot  
+    - [ ] On double press of the save button, unload and load an SD card for easy hot swapping
   - [ ] Use speaker for audial feedback
     - [ ] One sound for taking pictures, one for saving photos, and (one for powering up camera ?)
 - [ ] Combine all components together to test the whole system

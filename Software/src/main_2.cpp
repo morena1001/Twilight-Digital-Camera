@@ -1,53 +1,34 @@
-// #include "Arduino.h"
 // #include "Preferences.h"
 
-// #include "camera.h"
+// #include "ST7789V3.h"
 
 // #define CAPTURE_PIN     1
 // #define SD_CARD_PIN     44
 // #define DB_DELAY        50
 
-// Camera camera;
-// unsigned long capture_last_db_time = 0;
-// int capture_state = LOW;
-// int capture_last_state = LOW;
-
-// Preferences preferences;
+// ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
 
 // void setup () {
 //     Serial.begin (115200);
 //     while (!Serial);
 
-//     if (camera.Init_Camera () != ESP_OK)    return;
+//     st7789v3.Init_ST7789V3 (false);
 
-//     if (!SD.begin (SD_CARD_PIN))            return;
-//     if (SD.cardType () == CARD_NONE)        return;
+//     // Set entire screen to white
+//     byte pixel_data[3] = { 0x7E, 0x00, 0x00 };
+//     st7789v3.Fill_Screen (pixel_data);
 
-//     pinMode (CAPTURE_PIN, INPUT_PULLUP);
+//     // Write a box to the screen
+//     st7789v3.Set_Window_Location (0x0062, 0x007C, 0x0085, 0x00A9);
+//     byte pixel_data_1[3] = { 0x00, 0x00, 0x7E };
+//     st7789v3.Draw_Block (pixel_data_1, 0x001A, 0x24);
 
-//     preferences.begin ("memory", false);
-//     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
-
-//     Serial.println ("Begin photo capture");
+//     // Write a box to the screen   
+//     st7789v3.Set_Window_Location (0x0084, 0x00AE, 0x00C7, 0x00DB);
+//     byte pixel_data_2[3] = { 0x00, 0x00, 0xFC };
+//     st7789v3.Draw_Block (pixel_data_2, 0x002A, 0x14);
 // }
 
 // void loop () {
-//     int capture_reading = digitalRead (CAPTURE_PIN);
 
-//     if (capture_reading != capture_last_state)  capture_last_db_time = millis ();
-
-//     if ((millis () - capture_last_db_time) > DB_DELAY && capture_reading != capture_state) {
-//         capture_state = capture_reading;
-//         if (capture_state == LOW) {
-//             char file_name [32];
-//             sprintf (file_name, "/image%d.jpg", camera.Get_Image_Count ());
-
-//             camera.Photo_Save ();
-            
-//             Serial.printf ("Saved picture: %s\n", file_name);
-//             preferences.putUInt ("counter", camera.Get_Image_Count ());
-//         }
-//     }
-
-//     capture_last_state = capture_reading;
 // }

@@ -71,6 +71,7 @@ class ST7789V3 {
         void Draw_Pixel (uint8_t *color); // in RGB Format (Max value for each channel is 0xFC)
 
         void Draw_Pixels (uint32_t *color, uint16_t length); // Draw pixels given the colors for each pixel
+        void Draw_Pixels (uint16_t *color, uint16_t length); // Draw pixels given the colors for each pixel
         void Draw_Pixels (uint8_t **color, uint16_t length); // Draw pixels given the colors for each pixel
 
         void Draw_Block (uint32_t color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block
