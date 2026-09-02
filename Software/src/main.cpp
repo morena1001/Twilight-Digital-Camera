@@ -6,8 +6,11 @@
 #include "TJpg_Decoder.h"
 
 #define CAPTURE_PIN     1
+#define SAVE_PIN        2
 #define SD_CARD_PIN     44
 #define DB_DELAY        50
+
+bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* bitmap);
 
 Camera camera;
 ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
@@ -19,13 +22,6 @@ int capture_state = LOW;
 int capture_last_state = LOW;
 
 Preferences preferences;
-
-bool callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
-    if (y >= SCREEN_LENGTH)     return false;
-    st7789v3.Set_Window_Location_Size (x, w, y, h);
-    st7789v3.Draw_Pixels (bitmap, h, w);   
-    return true;
-}
 
 void setup () {
     Serial.begin (115200);
@@ -42,7 +38,7 @@ void setup () {
     st7789v3.Fill_Screen (COLOR_WHITE);
 
     TJpgDec.setJpgScale (4);
-    TJpgDec.setCallback (callback);
+    TJpgDec.setCallback (Callback);
 
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
@@ -77,4 +73,13 @@ void loop () {
     }
 
     capture_last_state = capture_reading;
+}
+
+
+
+bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* bitmap) {
+    if (y >= SCREEN_LENGTH)     return false;
+    st7789v3.Set_Window_Location_Size (x, width, y, length);
+    st7789v3.Draw_Pixels (bitmap, length, width);   
+    return true;
 }

@@ -164,7 +164,6 @@ void ST7789V3::Clear_Screen () {
 
 
 
-
 void ST7789V3::Transmit_Cmd (uint8_t cmd) {
     digitalWrite (ST7789V3_CS_PIN, LOW);
     digitalWrite (ST7789V3_DC_PIN, LOW);
