@@ -69,11 +69,11 @@ void ST7789V3::Set_Window_Location (uint16_t x_start, uint16_t x_end, uint16_t y
 
 void ST7789V3::Set_Window_Location_Size (uint16_t x_start, uint16_t x_length, uint16_t y_start, uint16_t y_length) {
     // Set column window location
-    byte col_win[WINDOW_SET_DATA_LENGTH] = { (byte) (x_start >> 0x08), (byte) (x_start & 0xFF), (byte) ((x_start + x_length) >> 0x08), (byte) ((x_start + x_length) & 0xFF) }; 
+    byte col_win[WINDOW_SET_DATA_LENGTH] = { (byte) (x_start >> 0x08), (byte) (x_start & 0xFF), (byte) ((x_start + x_length) >> 0x08), (byte) (((x_start + x_length) & 0xFF) - 1) }; 
     Transmit_Cmd_M_Data_Array (ST7789V3_CMD_CASET, col_win, WINDOW_SET_DATA_LENGTH);
     
     // Set row window location
-    byte row_win[WINDOW_SET_DATA_LENGTH] = { (byte) (y_start >> 0x08), (byte) (y_start & 0xFF), (byte) ((y_start +y_length) >> 0x08), (byte) ((y_start +y_length) & 0xFF) }; 
+    byte row_win[WINDOW_SET_DATA_LENGTH] = { (byte) (y_start >> 0x08), (byte) (y_start & 0xFF), (byte) ((y_start + y_length) >> 0x08), (byte) (((y_start + y_length) & 0xFF) - 1) }; 
     Transmit_Cmd_M_Data_Array (ST7789V3_CMD_RASET, row_win, WINDOW_SET_DATA_LENGTH);
 }
 
@@ -114,6 +114,20 @@ void ST7789V3::Draw_Pixels (uint8_t **color, uint16_t length) {
     Transmit_Cmd (ST7789V3_CMD_RAMWR);
     for (uint16_t i = 0; i < length; i++)
         Transmit_Multiple_Data (color[i], 3);
+}
+
+void ST7789V3::Draw_Pixels (uint16_t *color, uint16_t length, uint16_t width) {
+    uint8_t rgb[3];
+
+    Transmit_Cmd (ST7789V3_CMD_RAMWR);
+    for (uint16_t i = 0; i < length; i++) {
+        for (uint16_t j = 0; j < width; j++) {
+            rgb[0] = (uint8_t) (color[i] >> 0x08) & 0xF8;
+            rgb[1] = (uint8_t) ((color[i] >> 0x03) & 0xFC);
+            rgb[2] = (uint8_t) (color[i] << 0x03);;
+            Transmit_Multiple_Data (rgb, 3);
+        }
+    }
 }
 
 void ST7789V3::Draw_Block (uint32_t color, uint16_t length, uint16_t width) {

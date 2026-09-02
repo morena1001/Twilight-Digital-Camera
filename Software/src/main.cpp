@@ -23,7 +23,7 @@ Preferences preferences;
 bool callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     if (y >= SCREEN_LENGTH)     return false;
     st7789v3.Set_Window_Location_Size (x, w, y, h);
-    st7789v3.Draw_Pixels (bitmap, w * h);   
+    st7789v3.Draw_Pixels (bitmap, h, w);   
     return true;
 }
 
@@ -39,8 +39,7 @@ void setup () {
     st7789v3.Init_ST7789V3 (true);
 
     // Reset screen
-    byte pixel_data[3] = { 0xFC, 0xFC, 0xFC };
-    st7789v3.Fill_Screen (pixel_data);
+    st7789v3.Fill_Screen (COLOR_WHITE);
 
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (callback);
@@ -66,7 +65,7 @@ void loop () {
             Serial.println ("Trying to display photo");
             camera_fb_t *fb = esp_camera_fb_get ();
             if (!fb)    Serial.println ("Could not get photo buffer");
-            TJpgDec.drawJpg (RAM_WIDTH_START, RAM_LENGTH_START, fb->buf, fb->len);
+            TJpgDec.drawJpg (RAM_WIDTH_PIC_START, RAM_LENGTH_START, fb->buf, fb->len);
             esp_camera_fb_return (fb);
             Serial.println ("Displayed");
             

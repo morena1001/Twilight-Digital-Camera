@@ -4,9 +4,9 @@
     - [x] Create driver for camera
     - [x] Use external button to trigger photo capture
     - [x] Use Arduino SD library to save photos onto integrated SD card slot for testing
-  - [ ] Output photos to LCD display
-    - [ ] Create driver for the LCD display
-  - [ ] Transform photo editor effects into DSP algorithms to achieve the Twilight movie effect
+  - [x] Output photos to LCD display
+    - [x] Create driver for the LCD display
+  - [ ] Transform photo editor effects into sensor command modifications to achieve the Twilight movie effect
   - [ ] Use external SD card slot module to save photos
     - [ ] Use another external button to save photos onto SD card slot
     - [ ] Check when saving if an SD card is in the slot  
