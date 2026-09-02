@@ -51,6 +51,8 @@
 #define RAM_WIDTH_END           0x00CE // display is smaller than display RAM and sits at the midpoint of the width of the 2D RAM
 #define RAM_LENGTH_START        0x0000
 #define RAM_LENGTH_END          0x0140
+#define RAM_WIDTH_PIC_START     0x1E
+#define RAM_WIDTH_PIC_END       0xD2
 
 #define COLOR_WHITE     0xFCFCFC
 #define COLOR_BLACK     0x000000
@@ -70,8 +72,10 @@ class ST7789V3 {
         void Draw_Pixel (uint32_t color); // in RGB Format (Max value for each channel is 0xFC)
         void Draw_Pixel (uint8_t *color); // in RGB Format (Max value for each channel is 0xFC)
 
-        void Draw_Pixels (uint32_t *color, uint16_t length); // Draw pixels given the colors for each pixel
-        void Draw_Pixels (uint8_t **color, uint16_t length); // Draw pixels given the colors for each pixel
+        void Draw_Pixels (uint32_t *color, uint16_t length); // Draw pixels given the colors for each pixel (3BPP)
+        void Draw_Pixels (uint16_t *color, uint16_t length); // Draw pixels given the colors for each pixel (2BPP)
+        void Draw_Pixels (uint8_t **color, uint16_t length); // Draw pixels given the colors for each pixel (3BPP)
+        void Draw_Pixels (uint16_t *color, uint16_t length, uint16_t width); // Draw pixels given the colors for each pixel (2BPP)
 
         void Draw_Block (uint32_t color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block
         void Draw_Block (uint8_t *color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block

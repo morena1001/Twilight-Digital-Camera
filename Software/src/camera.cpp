@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "img_converters.h"
 
 Camera::Camera () {
     camera.pin_pwdn         = PWDN_GPIO_NUM;
@@ -21,30 +22,24 @@ Camera::Camera () {
     camera.xclk_freq_hz     = 20000000;
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
-    camera.pixel_format     = PIXFORMAT_JPEG;
-    camera.frame_size       = FRAMESIZE_UXGA;
+    camera.pixel_format     = PIXFORMAT_JPEG; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
+    camera.frame_size       = FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 12;
     camera.fb_count         = 1;
-    camera.grab_mode        = CAMERA_GRAB_WHEN_EMPTY;
+    camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
     camera.fb_location      = CAMERA_FB_IN_PSRAM;
-
-    if (camera.pixel_format == PIXFORMAT_JPEG) {
-        if (psramFound ()) {
-            camera.jpeg_quality = 10;
-            camera.fb_count = 2;
-            camera.grab_mode = CAMERA_GRAB_LATEST;
-        } else {
-            camera.frame_size = FRAMESIZE_SVGA;
-            camera.fb_location = CAMERA_FB_IN_DRAM;
-        }
-    } else {
-        camera.frame_size = FRAMESIZE_240X240;
-        camera.fb_count = 2;
-    }
 }
 
 esp_err_t Camera::Init_Camera () {
-    return esp_camera_init (&camera);
+    esp_err_t init = esp_camera_init (&camera);
+    if (init != ESP_OK)     return init;
+
+    sensor_t *s = esp_camera_sensor_get ();
+    if (s == NULL) return ESP_FAIL;
+
+    s->set_contrast (s, -1);
+
+    return ESP_OK;
 }
 
 void Camera::Photo_Save () {
@@ -53,8 +48,9 @@ void Camera::Photo_Save () {
 
     char file_name [32];
     sprintf (file_name, "/image%d.jpg", image_count);
-
+    
     Write_File (SD, file_name, fb->buf, fb->len);
+    Serial.printf ("Saved picture: %s\n", file_name);
     image_count++;
     esp_camera_fb_return (fb);
 }
@@ -74,10 +70,5 @@ void Camera::Write_File (fs::FS & fs, const char * path, uint8_t * data, size_t 
     file.close ();
 }
 
-void Camera::Set_Image_Count (uint32_t count) {
-    image_count = count;
-}
-
-uint32_t Camera::Get_Image_Count () {
-    return image_count;
-}
+void Camera::Set_Image_Count (uint32_t count)   { image_count = count; }
+uint32_t Camera::Get_Image_Count ()     { return image_count; }
