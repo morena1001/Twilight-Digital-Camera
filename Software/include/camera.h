@@ -30,8 +30,11 @@ class Camera {
         void Write_File (fs::FS & fs, const char * path, uint8_t * data, size_t len);
         void Set_Image_Count (uint32_t count);
         uint32_t Get_Image_Count ();
+        void Set_Fb (camera_fb_t *buf);
+        camera_fb_t * Get_Fb ();
 
     private:
         camera_config_t camera;
+        camera_fb_t *fb;
         uint32_t image_count;
 };
