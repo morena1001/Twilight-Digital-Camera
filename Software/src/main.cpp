@@ -33,6 +33,7 @@ int capture_last_state = LOW;
 int save_last_state = LOW;
 
 Preferences preferences;
+// SdFat SD;
 
 void setup () {
     Serial.begin (115200);
@@ -70,10 +71,13 @@ void loop () {
             Serial.println ("Trying to eject sd card");
             SD.end ();
             Serial.println ("sd card safe to eject");
+            sd_present = false;
         } else {
             Serial.println ("Trying to open sd card");
-            if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
-            else    Serial.println ("Micro sd card not detected. Unable to save photos");
+            if (SD.begin_wot (SD_CARD_PIN) && SD.cardType () != CARD_NONE) {
+                sd_present = true;
+                Serial.println ("Micro sd card detected and opened");
+            } else    Serial.println ("Micro sd card not detected. Unable to save photos");
         }
         long_press_detected = true;
     }   
@@ -88,9 +92,11 @@ void loop () {
             esp_camera_fb_return (camera.Get_Fb ());
             camera.Set_Fb (esp_camera_fb_get ());
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
-            photo_captured = true;
-            TJpgDec.drawJpg (RAM_WIDTH_PIC_START, RAM_LENGTH_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
-            Serial.println ("Displayed");
+            else {
+                photo_captured = true;
+                TJpgDec.drawJpg (RAM_WIDTH_PIC_START, RAM_LENGTH_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                Serial.println ("Displayed");
+            }
         }
     }
     
@@ -108,6 +114,8 @@ void loop () {
                     camera.Photo_Save ();
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
+                    // st7789v3.Clear_Screen ();
+                    photo_captured = false;
                 } else      Serial.println ("Unable to save photo, try again");
             } 
         
