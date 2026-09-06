@@ -43,8 +43,8 @@ esp_err_t Camera::Init_Camera () {
 }
 
 void Camera::Photo_Save () {
-    camera_fb_t *fb = esp_camera_fb_get ();
-    if (!fb)    return;
+    // camera_fb_t *fb = esp_camera_fb_get ();
+    // if (!fb)    return;
 
     char file_name [32];
     sprintf (file_name, "/image%d.jpg", image_count);
@@ -72,3 +72,5 @@ void Camera::Write_File (fs::FS & fs, const char * path, uint8_t * data, size_t 
 
 void Camera::Set_Image_Count (uint32_t count)   { image_count = count; }
 uint32_t Camera::Get_Image_Count ()     { return image_count; }
+void Camera::Set_Fb (camera_fb_t *buf) { fb = buf; }
+camera_fb_t * Camera::Get_Fb () { return fb; }
