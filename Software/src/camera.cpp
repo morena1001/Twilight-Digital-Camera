@@ -37,7 +37,12 @@ esp_err_t Camera::Init_Camera () {
     sensor_t *s = esp_camera_sensor_get ();
     if (s == NULL) return ESP_FAIL;
 
-    s->set_contrast (s, -1);
+    // s->set_contrast (s, -1);
+    // s->set_brightness (s, -1);
+    // s->set_saturation (s, 1);
+    // s->set_whitebal (s, true);
+    // s->set_wb_mode (s, 1);
+    // s->set_ae_level (s, 2);
 
     return ESP_OK;
 }

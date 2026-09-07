@@ -60,6 +60,8 @@ void setup () {
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
 
     Serial.println ("Begin photo capture");
+    // camera.Set_Fb (esp_camera_fb_get ());
+    // esp_camera_fb_return (camera.Get_Fb ());
 }
 
 void loop () {
@@ -114,7 +116,7 @@ void loop () {
                 if (sd_present && photo_captured) {
                     camera.Photo_Save ();
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
-                    esp_camera_fb_return (camera.Get_Fb ());
+                    //esp_camera_fb_return (camera.Get_Fb ());
                     // st7789v3.Clear_Screen ();
                     photo_captured = false;
                 } else      Serial.println ("Unable to save photo, try again");
