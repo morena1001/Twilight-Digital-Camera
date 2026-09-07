@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "Preferences.h"
+// #include "FreeRTOS.h"
 
 #include "camera.h"
 #include "ST7789V3.h"
@@ -13,6 +14,7 @@
 #define LP_DELAY        1000 // Max delay for double press
 
 bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* bitmap);
+// void Screen_Task (void * pv_parameters);
 
 Camera camera;
 ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
@@ -34,6 +36,8 @@ int capture_last_state = LOW;
 int save_last_state = LOW;
 
 Preferences preferences;
+// TaskHandle_t screen_handle;
+// TaskHandle_t camera_handle;
 // SdFat SD;
 
 void setup () {
@@ -55,6 +59,8 @@ void setup () {
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
     pinMode (SAVE_PIN, INPUT_PULLUP);
+
+    // xTaskCreatePinnedToCore (Screen_Task, "Screen image display", 10, NULL, 1, &screen_handle, 1);
 
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
@@ -116,7 +122,7 @@ void loop () {
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
                     // st7789v3.Clear_Screen ();
-                    photo_captured = false;
+                    // photo_captured = false;
                 } else      Serial.println ("Unable to save photo, try again");
             } 
         
@@ -136,4 +142,15 @@ bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* 
     st7789v3.Set_Window_Location_Size (x, width, y, length);
     st7789v3.Draw_Pixels (bitmap, length, width);   
     return true;
+}
+
+void Screen_Task (void * pv_parameters) {
+    Serial.printf ("Screen task running on core %d\r\n", xPortGetCoreID ());
+
+    for (;;) {
+        if (photo_captured) {
+            TJpgDec.drawJpg (RAM_WIDTH_PIC_START, RAM_LENGTH_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+            photo_captured = false;
+        }
+    }
 }
