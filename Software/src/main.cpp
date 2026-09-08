@@ -73,11 +73,15 @@ void loop () {
         if (sd_present) {
             Serial.println ("Trying to eject sd card");
             SD.end ();
+            SPI.end ();
+            SPI.begin ();
             Serial.println ("sd card safe to eject");
             sd_present = false;
         } else {
             Serial.println ("Trying to open sd card");
             if (SD.begin_wot (SD_CARD_PIN) && SD.cardType () != CARD_NONE) {
+                SPI.end ();
+                SPI.begin ();
                 sd_present = true;
                 Serial.println ("Micro sd card detected and opened");
             } else    Serial.println ("Micro sd card not detected. Unable to save photos");
@@ -118,7 +122,7 @@ void loop () {
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     //esp_camera_fb_return (camera.Get_Fb ());
                     // st7789v3.Clear_Screen ();
-                    photo_captured = false;
+                    // photo_captured = false;
                 } else      Serial.println ("Unable to save photo, try again");
             } 
         
