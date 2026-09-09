@@ -45,10 +45,9 @@ void setup () {
     if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
     else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
-    st7789v3.Init_ST7789V3 (true);
+    SPI.setFrequency (40000000);
 
-    // Reset screen
-    st7789v3.Fill_Screen (COLOR_WHITE);
+    st7789v3.Init_ST7789V3 (true);
 
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (Callback);
@@ -60,8 +59,6 @@ void setup () {
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
 
     Serial.println ("Begin photo capture");
-    // camera.Set_Fb (esp_camera_fb_get ());
-    // esp_camera_fb_return (camera.Get_Fb ());
 }
 
 void loop () {

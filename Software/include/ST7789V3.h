@@ -12,6 +12,7 @@
     COMMANDS
 */
 
+#define ST7789V3_CMD_NOP        0x00
 #define ST7789V3_CMD_SWRESET    0x01
 #define ST7789V3_CMD_SLPIN      0x10
 #define ST7789V3_CMD_SLPOUT     0x11
@@ -80,6 +81,8 @@ class ST7789V3 {
         void Draw_Block (uint32_t color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block
         void Draw_Block (uint8_t *color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block
 
+        void Draw_Block_Array (uint32_t color, uint16_t length, uint16_t width); // Draw a block of pixels given a single color and the dimensions of the block
+
         void Fill_Screen (uint32_t color); // Fill the screen given a single color
         void Fill_Screen (uint8_t *color); // Fill the screen given a single color
 
@@ -99,7 +102,7 @@ class ST7789V3 {
         void Transmit_Multiple_Data (uint8_t *data, uint8_t length); // Transmit multiple bytes of data, one byte at a time
         void Transmit_Multiple_Data_Array (uint8_t *data, uint8_t length); // Transmit multiple bytes of data at the same time
         void Transmit_Cmd_S_Data (uint8_t cmd, uint8_t data); // Transmit a command a single data byte
-        void Transmit_Cmd_M_Data (uint8_t cmd, uint8_t *data, uint8_t length); // Transmit a command byte and multiple data bytes, one byte at a time
+        void Transmit_Cmd_M_Data (uint8_t cmd, uint8_t *data, uint32_t length); // Transmit a command byte and multiple data bytes, one byte at a time
         void Transmit_Cmd_M_Data_Array (uint8_t cmd, uint8_t *data, uint8_t length); // Transmit a command byte and multiple data bytes at the same time
         
         uint8_t cs_pin_, dc_pin_, rst_pin_;

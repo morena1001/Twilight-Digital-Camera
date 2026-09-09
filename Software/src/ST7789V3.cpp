@@ -53,6 +53,9 @@ void ST7789V3::Init_ST7789V3 (bool is_spi_init) {
     // Display inversion on
     Transmit_Cmd (ST7789V3_CMD_INVON);
     
+    // Reset screen
+    Fill_Screen ((uint32_t) COLOR_BLACK);
+    
     // Display on
     Transmit_Cmd (ST7789V3_CMD_DISPON);
 }
@@ -146,9 +149,29 @@ void ST7789V3::Draw_Block (uint8_t *color, uint16_t length, uint16_t width) {
             Transmit_Multiple_Data (color, 3);
 }
 
+void ST7789V3::Draw_Block_Array (uint32_t color, uint16_t length, uint16_t width) {
+    uint8_t rgb[3] = { (uint8_t) (color >> 0x10), (uint8_t) ((color >> 0x08) & 0xFF), (uint8_t) (color & 0xFF) };
+    uint8_t *colors = (uint8_t*) (malloc (sizeof (uint8_t) * length * width * 3));
+
+    for (uint32_t i = 0; i < length * width * 3; i += 3) {
+        colors[i]     = rgb[0];    
+        colors[i + 1] = rgb[1];    
+        colors[i + 2] = rgb[2];    
+    }
+
+    Transmit_Cmd_M_Data (ST7789V3_CMD_RAMWR, colors, length * width * 3);
+    // digitalWrite (ST7789V3_CS_PIN, LOW);
+    // digitalWrite (ST7789V3_DC_PIN, LOW);
+    // SPI.transfer (cmd);
+    // digitalWrite (ST7789V3_DC_PIN, HIGH);
+    // for (uint16_t i = 0; i < length; i++)   SPI.transfer (data[i]);
+    // digitalWrite (ST7789V3_CS_PIN, HIGH);
+}
+
 void ST7789V3::Fill_Screen (uint32_t color) {
     Set_Window_Location_Size (0x0022, SCREEN_WIDTH, 0x0000, SCREEN_LENGTH);
     Draw_Block (color, SCREEN_LENGTH, SCREEN_WIDTH);
+    // Draw_Block_Array (color, SCREEN_LENGTH, SCREEN_WIDTH);
 }
 
 void ST7789V3::Fill_Screen (uint8_t *color) {
@@ -189,6 +212,8 @@ void ST7789V3::Transmit_Multiple_Data_Array (uint8_t *data, uint8_t length) {
     digitalWrite (ST7789V3_CS_PIN, LOW);
     digitalWrite (ST7789V3_DC_PIN, HIGH);
     SPI.transfer (data, length);
+    digitalWrite (ST7789V3_DC_PIN, LOW);
+    SPI.transfer (ST7789V3_CMD_NOP);
     digitalWrite (ST7789V3_CS_PIN, HIGH);
 }
 
@@ -201,12 +226,12 @@ void ST7789V3::Transmit_Cmd_S_Data (uint8_t cmd, uint8_t data) {
     digitalWrite (ST7789V3_CS_PIN, HIGH);
 }
 
-void ST7789V3::Transmit_Cmd_M_Data (uint8_t cmd, uint8_t *data, uint8_t length) {
+void ST7789V3::Transmit_Cmd_M_Data (uint8_t cmd, uint8_t *data, uint32_t length) {
     digitalWrite (ST7789V3_CS_PIN, LOW);
     digitalWrite (ST7789V3_DC_PIN, LOW);
     SPI.transfer (cmd);
     digitalWrite (ST7789V3_DC_PIN, HIGH);
-    for (uint16_t i = 0; i < length; i++)   SPI.transfer (data[i]);
+    for (uint32_t i = 0; i < length; i++)   SPI.transfer (data[i]);
     digitalWrite (ST7789V3_CS_PIN, HIGH);
 }
 
@@ -216,5 +241,7 @@ void ST7789V3::Transmit_Cmd_M_Data_Array (uint8_t cmd, uint8_t *data, uint8_t le
     SPI.transfer (cmd);
     digitalWrite (ST7789V3_DC_PIN, HIGH);
     SPI.transfer (data, length);
+    digitalWrite (ST7789V3_DC_PIN, LOW);
+    SPI.transfer (ST7789V3_CMD_NOP);
     digitalWrite (ST7789V3_CS_PIN, HIGH);
 }

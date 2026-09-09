@@ -49,11 +49,11 @@ esp_err_t Camera::Init_Camera () {
     s->set_whitebal (s, 0);
     s->set_awb_gain (s, 1);
 
-    s->set_reg(s, 0x3400, 0xFF, 0x02); // red 8-11
+    s->set_reg(s, 0x3400, 0xFF, 0x00); // red 8-11
     s->set_reg(s, 0x3401, 0xFF, 0x00); // red 0-7 
     s->set_reg(s, 0x3402, 0xFF, 0x04); // green 8-11 
     s->set_reg(s, 0x3403, 0xFF, 0x00); // green 0-7
-    s->set_reg(s, 0x3404, 0xFF, 0x08); // blue 8-11 
+    s->set_reg(s, 0x3404, 0xFF, 0x0A); // blue 8-11 
     s->set_reg(s, 0x3405, 0xFF, 0x00); // blue 0-7
     
     // s->set_whitebal (s, 1);
