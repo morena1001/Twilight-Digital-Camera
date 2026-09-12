@@ -23,7 +23,7 @@ Camera::Camera () {
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
     camera.pixel_format     = PIXFORMAT_JPEG; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
-    camera.frame_size       = FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
+    camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 12;
     camera.fb_count         = 1;
     camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
@@ -37,7 +37,7 @@ esp_err_t Camera::Init_Camera () {
     sensor_t *s = esp_camera_sensor_get ();
     if (s == NULL) return ESP_FAIL;
 
-    s->set_contrast (s, -1);
+    // s->set_contrast (s, -1);
 
     return ESP_OK;
 }
