@@ -2,29 +2,21 @@
 #include "Preferences.h"
 
 #include "camera.h"
-// #include "ST7789V3.h"
 
 #include "TFT_eSPI.h"
 #include "TJpg_Decoder.h"
 
 #define CAPTURE_PIN     1
 #define SAVE_PIN        2
+#define BL_PIN          3
 #define SD_CARD_PIN     44
 #define DB_DELAY        50 // Max delay for software debounce
 #define LP_DELAY        1000 // Max delay for double press
-
-#define RAM_WIDTH_START         0x0022 // display is smaller than display RAM and sits at the midpoint of the width of the 2D RAM
-#define RAM_WIDTH_END           0x00CE // display is smaller than display RAM and sits at the midpoint of the width of the 2D RAM
-#define RAM_LENGTH_START        0x0000
-#define RAM_LENGTH_END          0x0140
-#define RAM_WIDTH_PIC_START     0x1E
-#define RAM_WIDTH_PIC_END       0xD2
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 
 Camera camera;
 TFT_eSPI tft = TFT_eSPI();
-// ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
 
 bool sd_present = false;
 bool photo_captured = false;
@@ -45,7 +37,6 @@ int save_last_state = LOW;
 Preferences preferences;
 TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
-// SdFat SD;
 
 void setup () {
     Serial.begin (115200);
@@ -56,22 +47,23 @@ void setup () {
     if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
     else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
+    pinMode (CAPTURE_PIN, INPUT_PULLUP);
+    pinMode (SAVE_PIN, INPUT_PULLUP);
+    pinMode (BL_PIN, INPUT_PULLDOWN);
+
     tft.init ();
-    // tft.setRotation (1);
+    tft.setRotation (1);
     // tft.invertDisplay (1);
     tft.setSwapBytes(true);
     tft.fillScreen (TFT_WHITE);
-    
-    // st7789v3.Init_ST7789V3 (true);
 
-    // Reset screen
-    // st7789v3.Fill_Screen (COLOR_WHITE);
+    delay (100);
+    
+    digitalWrite (BL_PIN, HIGH);
 
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (Callback);
 
-    pinMode (CAPTURE_PIN, INPUT_PULLUP);
-    pinMode (SAVE_PIN, INPUT_PULLUP);
 
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
