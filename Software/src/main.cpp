@@ -57,7 +57,9 @@ void setup () {
     else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
     tft.init ();
-    tft.setRotation (1);
+    // tft.setRotation (1);
+    // tft.invertDisplay (1);
+    tft.setSwapBytes(true);
     tft.fillScreen (TFT_WHITE);
     
     // st7789v3.Init_ST7789V3 (true);
