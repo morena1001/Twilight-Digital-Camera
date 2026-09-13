@@ -2,20 +2,21 @@
 #include "Preferences.h"
 
 #include "camera.h"
-#include "ST7789V3.h"
 
+#include "TFT_eSPI.h"
 #include "TJpg_Decoder.h"
 
 #define CAPTURE_PIN     1
 #define SAVE_PIN        2
+#define BL_PIN          3
 #define SD_CARD_PIN     44
 #define DB_DELAY        50 // Max delay for software debounce
 #define LP_DELAY        1000 // Max delay for double press
 
-bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* bitmap);
+bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 
 Camera camera;
-ST7789V3 st7789v3 (ST7789V3_CS_PIN, ST7789V3_DC_PIN, ST7789V3_RST_PIN);
+TFT_eSPI tft = TFT_eSPI();
 
 bool sd_present = false;
 bool photo_captured = false;
@@ -34,7 +35,8 @@ int capture_last_state = LOW;
 int save_last_state = LOW;
 
 Preferences preferences;
-// SdFat SD;
+TaskHandle_t screen_handle = NULL;
+TaskHandle_t camera_handle = NULL;
 
 void setup () {
     Serial.begin (115200);
@@ -45,16 +47,23 @@ void setup () {
     if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
     else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
-    st7789v3.Init_ST7789V3 (true);
+    pinMode (CAPTURE_PIN, INPUT_PULLUP);
+    pinMode (SAVE_PIN, INPUT_PULLUP);
+    pinMode (BL_PIN, INPUT_PULLDOWN);
 
-    // Reset screen
-    st7789v3.Fill_Screen (COLOR_WHITE);
+    tft.init ();
+    tft.setRotation (1);
+    // tft.invertDisplay (1);
+    tft.setSwapBytes(true);
+    tft.fillScreen (TFT_WHITE);
+
+    delay (100);
+    
+    digitalWrite (BL_PIN, HIGH);
 
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (Callback);
 
-    pinMode (CAPTURE_PIN, INPUT_PULLUP);
-    pinMode (SAVE_PIN, INPUT_PULLUP);
 
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
@@ -95,7 +104,7 @@ void loop () {
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
             else {
                 photo_captured = true;
-                TJpgDec.drawJpg (RAM_WIDTH_PIC_START, RAM_LENGTH_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                TJpgDec.drawJpg (0, 0, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
             }
         }
@@ -116,7 +125,7 @@ void loop () {
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
                     // st7789v3.Clear_Screen ();
-                    photo_captured = false;
+                    // photo_captured = false;
                 } else      Serial.println ("Unable to save photo, try again");
             } 
         
@@ -131,9 +140,10 @@ void loop () {
 
 
 
-bool Callback (int16_t x, int16_t y, uint16_t width, uint16_t length, uint16_t* bitmap) {
-    if (y >= SCREEN_LENGTH)     return false;
-    st7789v3.Set_Window_Location_Size (x, width, y, length);
-    st7789v3.Draw_Pixels (bitmap, length, width);   
+bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    if (y >= tft.height ())     return false;
+    tft.pushImage (x, y, w, h, bitmap);
+    // st7789v3.Set_Window_Location_Size (x, width, y, length);
+    // st7789v3.Draw_Pixels (bitmap, length, width);   
     return true;
 }

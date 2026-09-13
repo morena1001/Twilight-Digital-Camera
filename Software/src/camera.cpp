@@ -23,7 +23,7 @@ Camera::Camera () {
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
     camera.pixel_format     = PIXFORMAT_JPEG; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
-    camera.frame_size       = FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
+    camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 12;
     camera.fb_count         = 1;
     camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
@@ -38,6 +38,42 @@ esp_err_t Camera::Init_Camera () {
     if (s == NULL) return ESP_FAIL;
 
     s->set_contrast (s, -1);
+    s->set_gain_ctrl (s, 0);
+    s->set_exposure_ctrl (s, 0);
+    s->set_agc_gain (s, 10);
+    s->set_aec_value (s, 1200);
+
+    s->set_brightness (s, -1);
+    s->set_contrast (s, 1);
+    s->set_saturation (s, -2);
+    // s->set_special_effect (s, 5);
+    s->set_whitebal (s, 0);
+    s->set_awb_gain (s, 1);
+
+    s->set_reg(s, 0x3400, 0xFF, 0x00); // red 8-11
+    s->set_reg(s, 0x3401, 0xFF, 0x00); // red 0-7 
+    s->set_reg(s, 0x3402, 0xFF, 0x04); // green 8-11 
+    s->set_reg(s, 0x3403, 0xFF, 0x00); // green 0-7
+    s->set_reg(s, 0x3404, 0xFF, 0x0A); // blue 8-11 
+    s->set_reg(s, 0x3405, 0xFF, 0x00); // blue 0-7
+    
+    // // s->set_whitebal (s, 1);
+    // // s->set_awb_gain (s, 1);
+    // s->set_wb_mode (s, 1);
+    // // s->set_aec_value (s, 600);
+    // // s->set_ae_level (s, -2);
+    // // s->set_aec2 (s, 1); // MAYBE NOT ? 
+    // // s->set_gainceiling (s, GAINCEILING_4X);
+    // s->set_raw_gma (s, 1);
+    // s->set_lenc (s, 1);
+
+    // s->set_ae_level (s, 2);
+
+    // Flush out first couple of frames to properly warm up sensors
+    for (uint8_t i = 0; i < 5; i++) {
+        camera_fb_t *fb = esp_camera_fb_get ();
+        esp_camera_fb_return (fb);
+    } 
 
     return ESP_OK;
 }
