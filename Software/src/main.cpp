@@ -53,16 +53,18 @@ void setup () {
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
     pinMode (SAVE_PIN, INPUT_PULLUP);
-    pinMode (BL_PIN, INPUT_PULLDOWN);
+    pinMode (BL_PIN, INPUT_PULLUP);
+
+    digitalWrite (BL_PIN, LOW);
 
     tft.init ();
     tft.setRotation (1);
     // tft.invertDisplay (1);
     tft.setSwapBytes(true);
-    tft.fillScreen (TFT_WHITE);
-    
-    // tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_WIDTH, DISPLAY_HEIGHT, splash_screen);
-    // digitalWrite (BL_PIN, HIGH);
+
+    delay (500);
+    tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_HEIGHT, DISPLAY_WIDTH, splash_screen);
+    digitalWrite (BL_PIN, HIGH);
     
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (Callback);
@@ -71,7 +73,7 @@ void setup () {
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
     
     delay (1000);    
-    // tft.fillScreen (TFT_BLACK);
+    tft.fillScreen (TFT_BLACK);
 
     Serial.println ("Begin photo capture");
 }
