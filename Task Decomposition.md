@@ -11,10 +11,10 @@
     - [x] Use another external button to save photos onto SD card slot
     - [x] Check when saving if an SD card is in the slot  
     - [x] On ~~double~~ long press of the save button, unload and load an SD card for easy hot swapping
-  - [ ] Use speaker for audial feedback
-    - [ ] One sound for taking pictures, one for saving photos, and (one for powering up camera ?)
-  - [ ] Add a loading screen when first powering MCU so that users do not see jumbled mess of screen before clear_screen function is called
-  - [ ] Separate screen from rest of device using threads
+  - [ ] ~~Use speaker for audial feedback~~
+    - [ ] ~~One sound for taking pictures, one for saving photos, and (one for powering up camera ?)~~
+  - [x] Add a loading screen when first powering MCU so that users do not see jumbled mess of screen before clear_screen function is called
+  - [ ] ~~Separate screen from rest of device using threads~~
 - [ ] Combine all components together to test the whole system
   - [ ] Use LiPo battery to power all components
   - [ ] Use press and hold button to power system on and off
