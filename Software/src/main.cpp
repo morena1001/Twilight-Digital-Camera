@@ -13,6 +13,10 @@
 #define DB_DELAY        50 // Max delay for software debounce
 #define LP_DELAY        1000 // Max delay for double press
 
+#define DISPLAY_START   0
+#define DISPLAY_WIDTH   172
+#define DISPLAY_HEIGHT  320
+
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 
 Camera camera;
@@ -56,17 +60,18 @@ void setup () {
     // tft.invertDisplay (1);
     tft.setSwapBytes(true);
     tft.fillScreen (TFT_WHITE);
-
-    delay (100);
     
-    digitalWrite (BL_PIN, HIGH);
-
+    // tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_WIDTH, DISPLAY_HEIGHT, splash_screen);
+    // digitalWrite (BL_PIN, HIGH);
+    
     TJpgDec.setJpgScale (4);
     TJpgDec.setCallback (Callback);
-
-
+    
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
+    
+    delay (1000);    
+    // tft.fillScreen (TFT_BLACK);
 
     Serial.println ("Begin photo capture");
 }
@@ -104,7 +109,7 @@ void loop () {
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
             else {
                 photo_captured = true;
-                TJpgDec.drawJpg (0, 0, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
             }
         }
