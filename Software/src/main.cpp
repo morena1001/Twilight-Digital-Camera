@@ -43,13 +43,9 @@ TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
 
 void setup () {
-    Serial.begin (115200);
-    while (!Serial);
-
     if (camera.Init_Camera () != ESP_OK)    return;
 
     if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
-    else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
     pinMode (SAVE_PIN, INPUT_PULLUP);
@@ -74,8 +70,6 @@ void setup () {
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
-
-    Serial.println ("Begin photo capture");
 }
 
 void loop () {
@@ -85,16 +79,12 @@ void loop () {
     // long press
     if (save_reading == LOW && !long_press_detected && save_button_pressed && (millis () - long_press_time) > LP_DELAY) {
         if (sd_present) {
-            Serial.println ("Trying to eject sd card");
             SD.end ();
-            Serial.println ("sd card safe to eject");
             sd_present = false;
         } else {
-            Serial.println ("Trying to open sd card");
             if (SD.begin_wot (SD_CARD_PIN) && SD.cardType () != CARD_NONE) {
                 sd_present = true;
-                Serial.println ("Micro sd card detected and opened");
-            } else    Serial.println ("Micro sd card not detected. Unable to save photos");
+            }
         }
         long_press_detected = true;
     }   
@@ -105,14 +95,12 @@ void loop () {
     if ((millis () - capture_last_db_time) > DB_DELAY && capture_reading != capture_state) {
         capture_state = capture_reading;
         if (capture_state == LOW) {
-            Serial.println ("Trying to display photo");
             esp_camera_fb_return (camera.Get_Fb ());
             camera.Set_Fb (esp_camera_fb_get ());
-            if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
+            if (!camera.Get_Fb ())   {}
             else {
                 photo_captured = true;
                 TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
-                Serial.println ("Displayed");
             }
         }
     }
@@ -125,7 +113,6 @@ void loop () {
             save_button_pressed = true;
         } else {
             if ((millis () - long_press_time) <= LP_DELAY && !long_press_detected) { // short press;
-                Serial.println ("Trying to save photo");
                 
                 if (sd_present && photo_captured) {
                     camera.Photo_Save ();
@@ -133,7 +120,7 @@ void loop () {
                     esp_camera_fb_return (camera.Get_Fb ());
                     // st7789v3.Clear_Screen ();
                     // photo_captured = false;
-                } else      Serial.println ("Unable to save photo, try again");
+                } 
             } 
         
             long_press_detected = false;

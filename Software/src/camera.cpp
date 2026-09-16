@@ -86,7 +86,6 @@ void Camera::Photo_Save () {
     sprintf (file_name, "/image%d.jpg", image_count);
     
     Write_File (SD, file_name, fb->buf, fb->len);
-    Serial.printf ("Saved picture: %s\n", file_name);
     image_count++;
     esp_camera_fb_return (fb);
 }
