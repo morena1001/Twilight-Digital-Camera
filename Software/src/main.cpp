@@ -17,7 +17,13 @@
 #define DISPLAY_WIDTH   172
 #define DISPLAY_HEIGHT  320
 
-bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
+#define MSG_DISPLAY_TIME        2500
+#define MSG_X                   0
+#define MSG_Y                   15
+#define MSG_HEIGHT              18
+#define MSG_BOX_ROUNDNESS       5  
+#define MSG_HORIZONTAL_PADDING  12   
+#define MSG_CHAR_WIDTH          6
 
 Camera camera;
 TFT_eSPI tft = TFT_eSPI();
@@ -26,12 +32,14 @@ bool sd_present = false;
 bool photo_captured = false;
 bool long_press_detected = false;
 bool save_button_pressed = false;
+bool msg_displayed = false;
 
 unsigned long capture_last_db_time = 0;
 unsigned long save_last_db_time = 0;
 unsigned long capture_last_press_time = 0;
 unsigned long save_last_press_time = 0;
 unsigned long long_press_time = 0;
+unsigned long msg_display_time = 0;
 
 int capture_state = LOW;
 int save_state = LOW;
@@ -41,6 +49,11 @@ int save_last_state = LOW;
 Preferences preferences;
 TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
+
+enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED };
+
+bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
+void Display_Message (Message msg, uint16_t img_num = 0);
 
 void setup () {
     Serial.begin (115200);
@@ -61,6 +74,8 @@ void setup () {
     tft.setRotation (1);
     // tft.invertDisplay (1);
     tft.setSwapBytes(true);
+    tft.setTextSize (1);
+    tft.setTextColor (TFT_WHITE);
 
     delay (500);
     tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_HEIGHT, DISPLAY_WIDTH, splash_screen);
@@ -74,11 +89,21 @@ void setup () {
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
+    // tft.fillScreen (TFT_BLUE);
+
+    // Display_Message (PHOTO_SAVED, 200);
 
     Serial.println ("Begin photo capture");
 }
 
 void loop () {
+    if (msg_displayed && (millis () - msg_display_time) > MSG_DISPLAY_TIME) {
+        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+        else                    tft.fillScreen (TFT_BLACK);
+
+        msg_displayed = false;
+    }
+
     int capture_reading = digitalRead (CAPTURE_PIN);
     int save_reading = digitalRead (SAVE_PIN);
 
@@ -88,13 +113,18 @@ void loop () {
             Serial.println ("Trying to eject sd card");
             SD.end ();
             Serial.println ("sd card safe to eject");
+            Display_Message (SD_EJECTABLE);
             sd_present = false;
         } else {
             Serial.println ("Trying to open sd card");
             if (SD.begin_wot (SD_CARD_PIN) && SD.cardType () != CARD_NONE) {
                 sd_present = true;
                 Serial.println ("Micro sd card detected and opened");
-            } else    Serial.println ("Micro sd card not detected. Unable to save photos");
+                Display_Message (SD_DISCOVERED);
+            } else {
+                Serial.println ("Micro sd card not detected. Unable to save photos");
+                Display_Message (NO_SD_DISCOVERED);
+            }
         }
         long_press_detected = true;
     }   
@@ -106,10 +136,14 @@ void loop () {
         capture_state = capture_reading;
         if (capture_state == LOW) {
             Serial.println ("Trying to display photo");
-            esp_camera_fb_return (camera.Get_Fb ());
+            if (photo_captured) {
+                esp_camera_fb_return (camera.Get_Fb ());
+                photo_captured = false;
+            }
             camera.Set_Fb (esp_camera_fb_get ());
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
             else {
+                msg_displayed = false;
                 photo_captured = true;
                 TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
@@ -131,9 +165,13 @@ void loop () {
                     camera.Photo_Save ();
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
-                    // st7789v3.Clear_Screen ();
-                    // photo_captured = false;
-                } else      Serial.println ("Unable to save photo, try again");
+                    tft.fillScreen (TFT_BLACK);
+                    Display_Message (PHOTO_SAVED, camera.Get_Image_Count () - 1);
+                    photo_captured = false;
+                } else {
+                    Serial.println ("Unable to save photo, try again");
+                    Display_Message (PHOTO_NOT_SAVED);
+                }
             } 
         
             long_press_detected = false;
@@ -150,7 +188,39 @@ void loop () {
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     if (y >= tft.height ())     return false;
     tft.pushImage (x, y, w, h, bitmap);
-    // st7789v3.Set_Window_Location_Size (x, width, y, length);
-    // st7789v3.Draw_Pixels (bitmap, length, width);   
     return true;
+}
+
+void Display_Message (Message msg, uint16_t img_num) {
+    // Calculate final length of bounding box
+    uint8_t char_length = 0;
+    switch (msg) {
+        case SD_EJECTABLE:      char_length = 22; break;
+        case SD_DISCOVERED:     char_length = 17; break;
+        case NO_SD_DISCOVERED:  char_length = 21; break;
+        case PHOTO_SAVED: {
+            if (img_num >= 10000)       char_length += 5;
+            else if (img_num >= 1000)   char_length += 4;
+            else if (img_num >= 100)    char_length += 3;
+            else if (img_num >= 10)     char_length += 2;
+            else if (img_num >= 1)      char_length += 1;
+        } 
+        case PHOTO_NOT_SAVED:   char_length += 24; break;
+    }
+
+    // Print bound box
+    tft.fillSmoothRoundRect (MSG_X, MSG_Y, (MSG_HORIZONTAL_PADDING + (char_length * MSG_CHAR_WIDTH)), MSG_HEIGHT, MSG_BOX_ROUNDNESS, TFT_DARKGREY, TFT_DARKGREY);
+
+    // Print characters
+    tft.setCursor (5, 20);
+    switch (msg) {
+        case SD_EJECTABLE:      tft.print  ("SD card can be ejected"); break;
+        case SD_DISCOVERED:     tft.print  ("SD card connected"); break;
+        case NO_SD_DISCOVERED:  tft.print  ("SD card not connected"); break;
+        case PHOTO_SAVED:       tft.printf ("Photo saved as image%d.jpg", img_num); break;
+        case PHOTO_NOT_SAVED:   tft.print  ("Photo could not be saved"); break;
+    }
+
+    msg_displayed = true;
+    msg_display_time = millis ();
 }
