@@ -13,13 +13,13 @@
     - [x] On ~~double~~ long press of the save button, unload and load an SD card for easy hot swapping
   - [ ] ~~Use speaker for audial feedback~~
     - [ ] ~~One sound for taking pictures, one for saving photos, and (one for powering up camera ?)~~
-  - [ ] Use visual feedback to let user know when photo is saved, SD is ejected or inserted, etc.
+  - [x] Use visual feedback to let user know when photo is saved, SD is ejected or inserted, etc.
   - [x] Add a loading screen when first powering MCU so that users do not see jumbled mess of screen before clear_screen function is called
   - [ ] ~~Separate screen from rest of device using threads~~
 - [ ] Combine all components together to test the whole system
   - [x] Use LiPo battery to power all components
   - [ ] Use switch to power system on and off
-- [ ] (Create a simple PCB for cleaner wiring ?)
+- [ ] Create a simple PCB for cleaner wiring
 - [ ] Design case for camera
   - [ ] Classic camera look
     - [ ] Lens jutting out the front
