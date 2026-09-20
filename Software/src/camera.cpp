@@ -107,6 +107,11 @@ void Camera::Write_File (fs::FS & fs, const char * path, uint8_t * data, size_t 
 }
 
 void Camera::Set_Image_Count (uint32_t count)   { image_count = count; }
-uint32_t Camera::Get_Image_Count ()     { return image_count; }
-void Camera::Set_Fb (camera_fb_t *buf) { fb = buf; }
-camera_fb_t * Camera::Get_Fb () { return fb; }
+uint32_t Camera::Get_Image_Count ()             { return image_count; }
+void Camera::Set_Fb (camera_fb_t *buf)          { fb = buf; }
+// void Camera::Set_Fb (camera_fb_t *buf)          { fb = buf; fb_buf = buf->buf; fb_len = buf->len; }
+camera_fb_t * Camera::Get_Fb ()                 { return fb; }
+void Camera::Set_Fb_Buf (uint8_t *buf)          { fb_buf = buf; }     
+uint8_t * Camera::Get_Fb_Buf ()                 { return fb_buf; }
+void Camera::Set_Fb_Len (size_t len)            { fb_len = len; }
+size_t Camera::Get_Fb_Len ()                    { return fb_len; }

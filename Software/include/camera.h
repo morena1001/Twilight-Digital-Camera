@@ -29,14 +29,21 @@ class Camera {
         void Photo_Save ();
         void Photo_Save (const char * file_name);
         void Write_File (fs::FS & fs, const char * path, uint8_t * data, size_t len);
+
         void Set_Image_Count (uint32_t count);
         uint32_t Get_Image_Count ();
         void Set_Fb (camera_fb_t *buf);
         camera_fb_t * Get_Fb ();
+        void Set_Fb_Buf (uint8_t *buf);
+        uint8_t * Get_Fb_Buf ();
+        void Set_Fb_Len (size_t len);
+        size_t Get_Fb_Len ();
 
     private:
         camera_config_t camera;
         camera_fb_t *fb;
+        uint8_t *fb_buf;
+        size_t fb_len;
         uint32_t image_count;
 };
 
