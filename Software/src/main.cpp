@@ -89,16 +89,13 @@ void setup () {
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
-    // tft.fillScreen (TFT_BLUE);
-
-    // Display_Message (PHOTO_SAVED, 200);
 
     Serial.println ("Begin photo capture");
 }
 
 void loop () {
     if (msg_displayed && (millis () - msg_display_time) > MSG_DISPLAY_TIME) {
-        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
         else                    tft.fillScreen (TFT_BLACK);
 
         msg_displayed = false;
@@ -146,7 +143,10 @@ void loop () {
                 msg_displayed = false;
                 photo_captured = true;
                 TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
+                camera.Set_Fb_Len (camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
+                // esp_camera_fb_return (camera.Get_Fb ());
             }
         }
     }
@@ -192,6 +192,12 @@ bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
 }
 
 void Display_Message (Message msg, uint16_t img_num) {
+    // Reset display if message is already displayed
+    if (msg_displayed) {
+        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+        else                    tft.fillScreen (TFT_BLACK);
+    }
+
     // Calculate final length of bounding box
     uint8_t char_length = 0;
     switch (msg) {
