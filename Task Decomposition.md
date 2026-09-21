@@ -19,7 +19,7 @@
 - [ ] Combine all components together to test the whole system
   - [x] Use LiPo battery to power all components
   - [ ] Use switch to power system on and off
-- [ ] Create a simple PCB for cleaner wiring
+- [x] Create a simple PCB for cleaner wiring
 - [ ] Design case for camera
   - [ ] Classic camera look
     - [ ] Lens jutting out the front
