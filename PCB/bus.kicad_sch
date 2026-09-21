@@ -1,0 +1,1506 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "1ca70730-41a9-4a0d-a08c-696e1ee2efdb")
+	(paper "A4")
+	(title_block
+		(title "Component Bus")
+		(date "2026-09-20")
+		(company "Sunflower Engineering")
+	)
+	(lib_symbols
+		(symbol "Connector:Conn_01x03_Socket"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x03_Socket"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x03, script generated"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_locked" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x03_Socket_1_1"
+				(arc
+					(start 0 -2.032)
+					(mid -0.5058 -2.54)
+					(end 0 -3.048)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -2.54) (xy -0.508 -2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy -0.508 0)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 2.54) (xy -0.508 2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 0.508)
+					(mid -0.5058 0)
+					(end 0 -0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 3.048)
+					(mid -0.5058 2.54)
+					(end 0 2.032)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Mechanical:MountingHole"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim yes)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "H"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MountingHole"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Mounting Hole without connection"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "mounting hole"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "MountingHole*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MountingHole_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 1.27)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+		)
+	)
+	(polyline
+		(pts
+			(xy 58.42 104.14) (xy 58.42 121.92)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "095d748a-1a59-49b6-98b4-9840b1bf5894")
+	)
+	(polyline
+		(pts
+			(xy 92.71 88.9) (xy 92.71 99.06)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "181dceba-d56d-4579-b52a-941a9cbbd508")
+	)
+	(polyline
+		(pts
+			(xy 132.08 59.69) (xy 175.26 59.69)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "344abf98-1219-4f91-90b8-ed7ac5b62882")
+	)
+	(polyline
+		(pts
+			(xy 92.71 50.8) (xy 92.71 60.96)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "3d31b870-6376-4ed1-9182-4c33499e5dee")
+	)
+	(polyline
+		(pts
+			(xy 58.42 50.8) (xy 58.42 60.96)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "53c1fa4b-03e9-4133-bb5a-bd6832bf32b4")
+	)
+	(polyline
+		(pts
+			(xy 92.71 60.96) (xy 58.42 60.96)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "6189345d-ddce-4b79-9752-2d7a5d6e25c7")
+	)
+	(polyline
+		(pts
+			(xy 58.42 104.14) (xy 92.71 104.14)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "6235c95c-ab0e-42b3-a772-152f75a6755c")
+	)
+	(polyline
+		(pts
+			(xy 132.08 59.69) (xy 132.08 74.93)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "67a74b44-6f3e-409b-aee9-fb949cf04e7b")
+	)
+	(polyline
+		(pts
+			(xy 92.71 121.92) (xy 58.42 121.92)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "6de759e8-bc2f-4b61-b5bf-d40cae2ba2cc")
+	)
+	(polyline
+		(pts
+			(xy 58.42 88.9) (xy 92.71 88.9)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "7c59d15b-1498-46f9-8741-983cf951489c")
+	)
+	(polyline
+		(pts
+			(xy 92.71 69.85) (xy 92.71 80.01)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "80eefede-7a6a-49ee-985b-7087e9292954")
+	)
+	(polyline
+		(pts
+			(xy 92.71 80.01) (xy 58.42 80.01)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "8a42b04b-b82a-4b27-a407-010a38e692b1")
+	)
+	(polyline
+		(pts
+			(xy 92.71 99.06) (xy 58.42 99.06)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "8fd9e153-6181-4b37-8f48-520b8c72f221")
+	)
+	(polyline
+		(pts
+			(xy 58.42 88.9) (xy 58.42 99.06)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "95e973ad-2dba-4cf7-a5cd-d3027b87ddd2")
+	)
+	(polyline
+		(pts
+			(xy 175.26 74.93) (xy 132.08 74.93)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "a03283f7-6666-4785-b72d-3a6f263dde67")
+	)
+	(polyline
+		(pts
+			(xy 92.71 104.14) (xy 92.71 121.92)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "b96c3046-08aa-4b81-b2c4-5ccf66198ba4")
+	)
+	(polyline
+		(pts
+			(xy 175.26 59.69) (xy 175.26 74.93)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "d7c47001-120d-4ee0-8850-7754296bc402")
+	)
+	(polyline
+		(pts
+			(xy 58.42 50.8) (xy 92.71 50.8)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "e0b9a7d9-9cb1-49dc-b8b7-8ebe795d695f")
+	)
+	(polyline
+		(pts
+			(xy 58.42 69.85) (xy 58.42 80.01)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "e6e71a09-e7f7-4af2-bb8f-5be2dddc58a9")
+	)
+	(polyline
+		(pts
+			(xy 58.42 69.85) (xy 92.71 69.85)
+		)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(uuid "f97aa926-708b-410b-a055-738f21e840b3")
+	)
+	(text "SPI SCK bus"
+		(exclude_from_sim no)
+		(at 86.614 81.534 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "2a1362f7-fe32-4923-8cd7-89e87e08d9a6")
+	)
+	(text "GND bus"
+		(exclude_from_sim no)
+		(at 88.646 123.444 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "77ee4044-d73c-4046-be01-e2932f0817ba")
+	)
+	(text "M2"
+		(exclude_from_sim no)
+		(at 173.99 76.708 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "7a9bb339-e535-45e9-ad1b-fa152d12b278")
+	)
+	(text "SPI MOSI bus"
+		(exclude_from_sim no)
+		(at 86.36 62.484 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "82f69d73-1c70-4257-a3e8-17bd1fdf7cfa")
+	)
+	(text "3v3 bus"
+		(exclude_from_sim no)
+		(at 88.9 100.584 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "e819d641-a8bb-4083-934e-383dff0d1010")
+	)
+	(global_label "MOSI"
+		(shape input)
+		(at 66.04 53.34 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "054e6196-a395-4923-a468-c3a51de03de6")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 58.4586 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "3v3"
+		(shape input)
+		(at 66.04 93.98 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0690311a-9159-41e6-bb6e-852b11dc7fa3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.6682 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CLK"
+		(shape input)
+		(at 66.04 72.39 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2ec4d200-7d64-4a4a-b6d9-0c227010d7fc")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.4867 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "MOSI"
+		(shape input)
+		(at 66.04 58.42 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "45fa81d3-ff78-4b9b-9e9b-bf8b50abeb90")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 58.4586 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "3v3"
+		(shape input)
+		(at 66.04 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4ce61077-ac15-4427-b18e-7ded90b07ca2")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.6682 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 111.76 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "52c5929c-d261-4635-916e-eb68781d6e58")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 116.84 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "75277cd8-8fd0-43b4-afaa-12538a001f30")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CLK"
+		(shape input)
+		(at 66.04 74.93 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "752b02fc-ff15-4519-bbd9-4b7972fb18a9")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.4867 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8cfe06fa-c8f1-4b8b-8d74-bb58e16bba79")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "MOSI"
+		(shape input)
+		(at 66.04 55.88 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "adff9c9c-5f58-4f6f-b564-5008f318b9d0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 58.4586 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "3v3"
+		(shape input)
+		(at 66.04 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b3b3e28f-cdad-4d2f-8b1b-cf9083e8bcd4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.6682 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CLK"
+		(shape input)
+		(at 66.04 77.47 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "da6294cd-3911-4b9e-b079-c0a9a0a01c11")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.4867 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 119.38 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e400ae2f-d997-42f8-805c-3d7cd0a9ddf5")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e91e8f1f-b6f3-4d84-ac66-1ef246e9870e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape input)
+		(at 66.04 106.68 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "fee8ebb7-a3b5-4173-9f5f-09d2cb068ef0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 59.1843 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Socket")
+		(at 71.12 55.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "00297cca-728b-4b26-9709-19d10d0b43cd")
+		(property "Reference" "J1"
+			(at 72.39 54.6099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03_Socket"
+			(at 72.39 57.1499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 71.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 71.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "74abe522-109d-4a3d-a6c0-03e14a0f4587")
+		)
+		(pin "2"
+			(uuid "d081c9cb-b529-4c35-8740-c2297d87de9b")
+		)
+		(pin "3"
+			(uuid "4d69b1be-83af-4187-9b06-c1a3dd9b43d6")
+		)
+		(instances
+			(project ""
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Socket")
+		(at 71.12 74.93 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0f310a19-c826-4f89-82eb-32fe00b5e56c")
+		(property "Reference" "J2"
+			(at 72.39 73.6599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03_Socket"
+			(at 72.39 76.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 71.12 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 71.12 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5bc4433e-20d9-49cf-8a16-ade2ddc090c2")
+		)
+		(pin "2"
+			(uuid "a273d997-4d26-4970-805e-0e86e0c28ba5")
+		)
+		(pin "3"
+			(uuid "5f6860f2-7503-46d9-814b-7979a876796c")
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Socket")
+		(at 71.12 93.98 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2834e4a9-fea7-4f7f-93c5-e80b418c6ddf")
+		(property "Reference" "J3"
+			(at 72.39 92.7099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03_Socket"
+			(at 72.39 95.2499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 71.12 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 71.12 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "357fe148-4e42-4566-8cd3-de17bd2e3324")
+		)
+		(pin "2"
+			(uuid "655ca445-dfdd-429a-96fb-f6c4ee29b907")
+		)
+		(pin "3"
+			(uuid "83f0db00-e845-45b4-8a53-25078193b9ef")
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 157.48 71.12 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2a3bb34b-9087-46f3-90dd-92eff810102f")
+		(property "Reference" "H4"
+			(at 160.02 69.8499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 160.02 72.3899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+			(at 157.48 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 157.48 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 157.48 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "H4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 135.89 63.5 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "36cdb160-a8b6-4de9-8dac-4b9723424974")
+		(property "Reference" "H1"
+			(at 138.43 62.2299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 138.43 64.7699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+			(at 135.89 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 135.89 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Socket")
+		(at 71.12 116.84 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "67066001-4b32-44a8-9660-75eef96d2ca2")
+		(property "Reference" "J6"
+			(at 72.39 115.5699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03_Socket"
+			(at 72.39 118.1099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 71.12 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 71.12 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "18420c21-83da-4a77-90e6-7b7a8810445f")
+		)
+		(pin "2"
+			(uuid "8f5135c4-3506-4145-b510-7185900db9e5")
+		)
+		(pin "3"
+			(uuid "fd3a0474-f3ee-4297-8164-31aab35d82dd")
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "J6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 157.48 63.5 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "84aec9b9-8cc1-4c3d-8449-eec366658b97")
+		(property "Reference" "H3"
+			(at 160.02 62.2299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 160.02 64.7699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+			(at 157.48 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 157.48 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 157.48 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "H3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Socket")
+		(at 71.12 109.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a10c30aa-b707-4490-a3e0-1fd41a339a2e")
+		(property "Reference" "J5"
+			(at 72.39 107.9499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03_Socket"
+			(at 72.39 110.4899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 71.12 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 71.12 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "04b0912f-ad9b-46a8-a801-bc77cdbdee43")
+		)
+		(pin "2"
+			(uuid "a6b93371-f79a-4fc0-9183-d632fbd76277")
+		)
+		(pin "3"
+			(uuid "6c6831d5-af02-4b83-915b-7321f4758add")
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "J5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 135.89 71.12 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c3e2b57b-840e-414c-a05f-a0513c30756c")
+		(property "Reference" "H2"
+			(at 138.43 69.8499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 138.43 72.3899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+			(at 135.89 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 135.89 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "bus"
+				(path "/1ca70730-41a9-4a0d-a08c-696e1ee2efdb"
+					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)
