@@ -1,0 +1,63 @@
+- August 5th
+  - Github repo made, initial commit pushed
+  - Initial task decomposition made
+- August 9th
+  - Set up development environment (PlatformIO)
+- August 11th
+  - Added ability to take pictures and save them to a 32 GB micro SD card
+  - Used sample code from Seeed (LOOK IT UP)
+- August 12th
+  - Small update to task decomposition
+- August 15th
+  - Added capture button
+    - Reused software debounce from previous project
+- August 16th
+  - Refactored camera code into its own class
+- August 18th
+  - Initial integration of external micro SD card slot
+    - No ability to hot swap the SD card
+- August 20th
+  - Code refactor for SD card slot code
+- August 20th
+  - Updated task decomposition
+    - Added checklist item for hot swapping SD card
+- August 23rd
+  - Initial test of screen
+    - Ability to print a block of pixels to the screen as well as clear entire screen
+    - Reused software template from a previous project
+    - Initial idea to create branches for testing and development
+    - No idea where exact screen position was on RAM since the display is smaller
+  - Solved inverted color issue with simple command
+  - Figured out location of display on RAM (midpoint of width of RAM is midpoint of width of display)
+- August 25th
+  - Refactored display code into its own class
+  - First PR made
+- August 29th
+  - Decided to go from taking photos as bitmaps, displaying them as bitmaps on the display, and then saving them to the SD card as a converted JPEG, to simply taking photos as JPEGs and using an external library to decode it and display it on the screen
+  - Initial issue with streaks of pixels 
+- September 1st
+  - Solved streak issues with a simple change of my window setting code
+  - Realized that the image is very pixelated
+- September 1st
+  - Added more functionality to the LCD screen class 
+    - Fixed streaking issue
+- September 5th
+  - Added long press functionality to save photo button to be able to eject and hot swap the SD card
+  - Had to add a custom library to the SD card library in order to properly restart communication with the SD without having to restart SPI 
+- September 6th
+  - Brought up the idea to use SdFat library
+  - Refactored long press code
+  - Updated task decomposition to add loading screen and to use multithreading
+- September 11th
+  - Ported software to integrate TFT_eSPI library to test how much quicker that library displayed images
+  - Fixed orientation and image display issues
+- September 12th
+  - Decided to keep using TFT_eSPI library
+- September 13th
+  - Added a splash screen of sunflower logo
+- September 15th
+  - Updated task decomposition to replace audial with visual feedback and a power switch
+- September 19th
+  - Finished visual text feedback
+- September 20th
+  - Designed PCB and order them through JLCPCB
