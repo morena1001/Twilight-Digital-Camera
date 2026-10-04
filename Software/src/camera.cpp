@@ -37,25 +37,34 @@ esp_err_t Camera::Init_Camera () {
     sensor_t *s = esp_camera_sensor_get ();
     if (s == NULL) return ESP_FAIL;
 
-    s->set_contrast (s, -1);
-    s->set_gain_ctrl (s, 0);
-    s->set_exposure_ctrl (s, 0);
-    s->set_agc_gain (s, 10);
-    s->set_aec_value (s, 1200);
+    // s->set_gain_ctrl (s, 0);
+    // s->set_exposure_ctrl (s, 0);
+    // s->set_whitebal (s, 0);
+    // s->set_awb_gain (s, 0);
 
-    s->set_brightness (s, -1);
-    s->set_contrast (s, 1);
-    s->set_saturation (s, -2);
+
+    // s->set_agc_gain (s, 10);
+    // s->set_aec_value (s, 1200);
+
+    
+    
+    // s->set_brightness (s, -1);
+    // s->set_contrast (s, 1);
+    s->set_saturation (s, 1);
+
+
+
     // s->set_special_effect (s, 5);
-    s->set_whitebal (s, 0);
-    s->set_awb_gain (s, 1);
 
-    s->set_reg(s, 0x3400, 0xFF, 0x00); // red 8-11
-    s->set_reg(s, 0x3401, 0xFF, 0x00); // red 0-7 
-    s->set_reg(s, 0x3402, 0xFF, 0x04); // green 8-11 
-    s->set_reg(s, 0x3403, 0xFF, 0x00); // green 0-7
-    s->set_reg(s, 0x3404, 0xFF, 0x0A); // blue 8-11 
-    s->set_reg(s, 0x3405, 0xFF, 0x00); // blue 0-7
+
+
+    // s->set_reg (s, 0x3406, 0xFF, 0x01);
+    // s->set_reg (s, 0x3400, 0xFF, 0x00); // red 8-11
+    // s->set_reg (s, 0x3401, 0xFF, 0x00); // red 0-7 
+    // s->set_reg (s, 0x3402, 0xFF, 0x04); // green 8-11 
+    // s->set_reg (s, 0x3403, 0xFF, 0x00); // green 0-7
+    // s->set_reg (s, 0x3404, 0xFF, 0x0A); // blue 8-11 
+    // s->set_reg (s, 0x3405, 0xFF, 0x00); // blue 0-7
     
     // // s->set_whitebal (s, 1);
     // // s->set_awb_gain (s, 1);
@@ -73,8 +82,8 @@ esp_err_t Camera::Init_Camera () {
     for (uint8_t i = 0; i < 5; i++) {
         camera_fb_t *fb = esp_camera_fb_get ();
         esp_camera_fb_return (fb);
-    } 
-
+    }
+    
     return ESP_OK;
 }
 

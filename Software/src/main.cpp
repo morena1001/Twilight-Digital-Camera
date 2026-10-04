@@ -187,6 +187,18 @@ void loop () {
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     if (y >= tft.height ())     return false;
+    for (uint16_t i = 0; i < w * h; i++) {
+        // if (bitmap[i] < 0x18C3) Serial.println ("NOOO");
+        // bitmap[i] -= 0x18C3; // subtract 6 from r and g, and 3 from b
+        // bitmap[i] += 0x0003;
+        // if (bitmap[i] & 0x001F >= 0x03)             bitmap[i] -= 0x0003;
+        // else        bitmap[i] -= bitmap[i] & 0x001F;
+        if ((bitmap[i] & 0x07E0) >> 0x05 >= 0x05)     bitmap[i] -= 0x00A0; //0x00C0;
+        // else        bitmap[i] -= (bitmap[i] & 0x07E0) >> 0x05;
+        if (bitmap[i] >> 0x0B >= 0x06)              bitmap[i] -= 0x3000;
+        // else        bitmap[i] -= bitmap[i] >> 0x0B;
+    }
+    
     tft.pushImage (x, y, w, h, bitmap);
     return true;
 }
