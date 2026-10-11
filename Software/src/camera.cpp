@@ -22,7 +22,7 @@ Camera::Camera () {
     camera.xclk_freq_hz     = 20000000;
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
-    camera.pixel_format     = PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
+    camera.pixel_format     = PIXFORMAT_JPEG; // PIXFORMAT_YUV422; // PIXFORMAT_YUV420; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
     camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 12;
     camera.fb_count         = 1;
