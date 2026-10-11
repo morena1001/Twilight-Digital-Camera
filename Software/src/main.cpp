@@ -178,7 +178,8 @@ void loop () {
             else {
                 msg_displayed = false;
                 photo_captured = true;
-                TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                // TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                Serial.printf ("%d\r\n", camera.Get_Fb ()->len);
                 camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
                 camera.Set_Fb_Len (camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
@@ -202,7 +203,7 @@ void loop () {
                     TJpgDec.setCallback (Callback_Full);
                     i = 0, i_data_size = 0;
 
-                    rc = jpeg.open ("/TEST6.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    rc = jpeg.open ("/TEST8.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
                     if (rc == JPEGE_SUCCESS) {
                         Serial.println ("JPEG file opened successfully");
 
@@ -249,7 +250,7 @@ void loop () {
 
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
-    Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
+    // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
     if (y >= tft.height ())     return false;
     for (uint16_t i = 0; i < w * h; i++) {
         // if (bitmap[i] < 0x18C3) Serial.println ("NOOO");

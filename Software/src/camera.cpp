@@ -19,12 +19,12 @@ Camera::Camera () {
     camera.pin_href         = HREF_GPIO_NUM;
     camera.pin_pclk         = PCLK_GPIO_NUM;
 
-    camera.xclk_freq_hz     = 20000000;
+    camera.xclk_freq_hz     = 10000000; //20000000;
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
-    camera.pixel_format     = PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
+    camera.pixel_format     = PIXFORMAT_RGB565; // PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB888;
     camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
-    camera.jpeg_quality     = 12;
+    camera.jpeg_quality     = 3;
     camera.fb_count         = 1;
     camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
     camera.fb_location      = CAMERA_FB_IN_PSRAM;
@@ -85,7 +85,7 @@ esp_err_t Camera::Init_Camera () {
     // s->set_ae_level (s, 2);
 
     // Flush out first couple of frames to properly warm up sensors
-    for (uint8_t i = 0; i < 5; i++) {
+    for (uint8_t i = 0; i < 1/*5*/; i++) {
         camera_fb_t *fb = esp_camera_fb_get ();
         esp_camera_fb_return (fb);
     }
