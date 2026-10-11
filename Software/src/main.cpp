@@ -5,6 +5,7 @@
 
 #include "TFT_eSPI.h"
 #include "TJpg_Decoder.h"
+#include "JPEGENC.h"
 
 #define CAPTURE_PIN     1
 #define SAVE_PIN        2
@@ -25,8 +26,18 @@
 #define MSG_HORIZONTAL_PADDING  12   
 #define MSG_CHAR_WIDTH          6
 
+#define DISPLAY_JPG_SCALE       4
+#define FILE_JPG_SCALE          1
+
 Camera camera;
 TFT_eSPI tft = TFT_eSPI();
+JPEGENC jpeg;
+JPEGENCODE encoder;
+static File my_file;
+
+const int i_width = 1280, i_height = 720;
+int i, i_mcu_count, rc, i_data_size;
+uint8_t uc_mcu[64];
 
 bool sd_present = false;
 bool photo_captured = false;
@@ -53,7 +64,32 @@ TaskHandle_t camera_handle = NULL;
 enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED };
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
+bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 void Display_Message (Message msg, uint16_t img_num = 0);
+
+
+void * My_Open (const char *filename) {
+  my_file = SD.open (filename, FILE_WRITE);
+  return (void *) &my_file;
+}
+void My_Close (JPEGE_FILE *p) {
+  File *f = (File *) p->fHandle;
+  if (f) f->close ();
+}
+int32_t My_Read (JPEGE_FILE *p, uint8_t *buffer, int32_t length) {
+  File *f = (File *) p->fHandle;
+  return f->read (buffer, length);
+}
+
+int32_t My_Write (JPEGE_FILE *p, uint8_t *buffer, int32_t length) {
+  File *f = (File *) p->fHandle;
+  return f->write (buffer, length);
+}
+
+int32_t My_Seek (JPEGE_FILE *p, int32_t position) {
+  File *f = (File *) p->fHandle;
+  return f->seek (position);
+}
 
 void setup () {
     Serial.begin (115200);
@@ -81,7 +117,7 @@ void setup () {
     tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_HEIGHT, DISPLAY_WIDTH, splash_screen);
     digitalWrite (BL_PIN, HIGH);
     
-    TJpgDec.setJpgScale (4);
+    TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
     TJpgDec.setCallback (Callback);
     
     preferences.begin ("memory", false);
@@ -162,8 +198,35 @@ void loop () {
                 Serial.println ("Trying to save photo");
                 
                 if (sd_present && photo_captured) {
-                    camera.Photo_Save ();
-                    preferences.putUInt ("counter", camera.Get_Image_Count ());
+                    TJpgDec.setJpgScale (FILE_JPG_SCALE);
+                    TJpgDec.setCallback (Callback_Full);
+                    i = 0, i_data_size = 0;
+
+                    rc = jpeg.open ("/TEST6.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    if (rc == JPEGE_SUCCESS) {
+                        Serial.println ("JPEG file opened successfully");
+
+                        rc = jpeg.encodeBegin (&encoder, i_width, i_height, JPEGE_PIXEL_RGB565, JPEGE_SUBSAMPLE_444, JPEGE_Q_HIGH);
+                        if (rc == JPEGE_SUCCESS) {
+                            memset (uc_mcu, 0, sizeof (uc_mcu));
+
+                            i_mcu_count = ((i_width + encoder.cx - 1) / encoder.cx) * ((i_height + encoder.cy - 1) / encoder.cy);
+                            TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+                            i_data_size = jpeg.close ();
+                            Serial.print("Output file size = ");
+                            Serial.println(i_data_size, DEC);
+                        }
+                    }
+                    
+
+                    
+                    
+                    
+                    TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
+                    TJpgDec.setCallback (Callback);
+                    
+                    // camera.Photo_Save ();
+                    // preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
                     tft.fillScreen (TFT_BLACK);
                     Display_Message (PHOTO_SAVED, camera.Get_Image_Count () - 1);
@@ -186,6 +249,7 @@ void loop () {
 
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
     if (y >= tft.height ())     return false;
     for (uint16_t i = 0; i < w * h; i++) {
         // if (bitmap[i] < 0x18C3) Serial.println ("NOOO");
@@ -200,6 +264,25 @@ bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     }
     
     tft.pushImage (x, y, w, h, bitmap);
+    return true;
+}
+
+bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
+    uint16_t left_bitmap[64];
+    uint16_t right_bitmap[64];
+
+    for (uint8_t i = 0; i < 8; i++) {
+        for (uint8_t j = 0; j < 8; j++) {
+            left_bitmap[i * 8 + j] = bitmap[i * 16 + j];
+            right_bitmap[i * 8 + j] = bitmap[i * 16 + (j + 8)];
+        }
+    }
+    jpeg.addMCU (&encoder, (uint8_t *) &left_bitmap, 8);
+    jpeg.addMCU (&encoder, (uint8_t *) &right_bitmap, 8);
+    
+    // jpeg.addMCU (&encoder, (uint8_t *) &bitmap, 16);
+    
     return true;
 }
 

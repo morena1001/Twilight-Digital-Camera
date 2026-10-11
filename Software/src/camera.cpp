@@ -22,7 +22,7 @@ Camera::Camera () {
     camera.xclk_freq_hz     = 20000000;
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
-    camera.pixel_format     = PIXFORMAT_JPEG; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
+    camera.pixel_format     = PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB565; // PIXFORMAT_RGB888;
     camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 12;
     camera.fb_count         = 1;
@@ -36,6 +36,12 @@ esp_err_t Camera::Init_Camera () {
 
     sensor_t *s = esp_camera_sensor_get ();
     if (s == NULL) return ESP_FAIL;
+
+    // s->set_reg (s, 0x4407, 0xff, 0x02); 
+    // s->set_reg(s, 0x3621, 0xFF, 0xC0); // Configures vertical/horizontal scaling factors
+    // s->set_reg(s, 0x4705, 0xFF, 0x01);
+    s->set_reg(s, 0x4342, 0xFF, 0x01);
+    // s->set_framesize (s, camera.frame_size);
 
     // s->set_gain_ctrl (s, 0);
     // s->set_exposure_ctrl (s, 0);
