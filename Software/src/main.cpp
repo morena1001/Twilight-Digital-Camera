@@ -5,7 +5,7 @@
 
 #include "TFT_eSPI.h"
 #include "TJpg_Decoder.h"
-#include "JPEGENC.h"
+#include "PNGenc.h"
 
 #define CAPTURE_PIN     1
 #define SAVE_PIN        2
@@ -28,16 +28,18 @@
 
 #define DISPLAY_JPG_SCALE       4
 #define FILE_JPG_SCALE          1
+#define IMAGE_WIDTH             1280
+#define IMAGE_HEIGHT            720
 
 Camera camera;
 TFT_eSPI tft = TFT_eSPI();
-JPEGENC jpeg;
-JPEGENCODE encoder;
-static File my_file;
+PNGENC png;
+File png_file;
 
-const int i_width = 1280, i_height = 720;
-int i, i_mcu_count, rc, i_data_size;
-uint8_t uc_mcu[64];
+uint16_t **png_buffer = (uint16_t **) malloc (sizeof (uint16_t *) * 8);
+uint8_t *png_temp_buffer = (uint8_t *) malloc (IMAGE_WIDTH * 3);
+uint8_t **truecolor_png_buffer = (uint8_t **) malloc (sizeof (uint8_t *) * 16);
+uint8_t png_truecolor[3840];
 
 bool sd_present = false;
 bool photo_captured = false;
@@ -69,26 +71,40 @@ void Display_Message (Message msg, uint16_t img_num = 0);
 
 
 void * My_Open (const char *filename) {
-  my_file = SD.open (filename, FILE_WRITE);
-  return (void *) &my_file;
+    png_file = SD.open (filename, FILE_WRITE, true);
+    return &png_file;
 }
-void My_Close (JPEGE_FILE *p) {
-  File *f = (File *) p->fHandle;
-  if (f) f->close ();
+void My_Close (PNGFILE *handle) {
+    // png_file.close ();
+    
+    // File *f = (File *) handle->fHandle;
+    // f->flush ();
+    // f->close ();
 }
-int32_t My_Read (JPEGE_FILE *p, uint8_t *buffer, int32_t length) {
-  File *f = (File *) p->fHandle;
-  return f->read (buffer, length);
+int32_t My_Read (PNGFILE *handle, uint8_t *buffer, int32_t length) {
+    int32_t bytes_read;
+    bytes_read = length;
+    File *f = (File *) handle->fHandle;
+    bytes_read = (int32_t )f->read (buffer, bytes_read);
+    handle->iPos = f->position ();
+    return bytes_read;
 }
 
-int32_t My_Write (JPEGE_FILE *p, uint8_t *buffer, int32_t length) {
-  File *f = (File *) p->fHandle;
-  return f->write (buffer, length);
+int32_t My_Write (PNGFILE *handle, uint8_t *buffer, int32_t length) {
+    // int32_t bytesWritten = png_file.write(buffer, length);
+    // handle->iPos += bytesWritten;
+    // return bytesWritten;
+    
+    File *f = (File *) handle->fHandle;
+    handle->iPos += length;
+    return f->write (buffer, length);
 }
 
-int32_t My_Seek (JPEGE_FILE *p, int32_t position) {
-  File *f = (File *) p->fHandle;
-  return f->seek (position);
+int32_t My_Seek (PNGFILE *handle, int32_t position) {
+    File *f = (File *) handle->fHandle;
+    if (!f->seek (position)) return -1;
+    handle->iPos = (int) f->position ();
+    return handle->iPos;
 }
 
 void setup () {
@@ -122,6 +138,9 @@ void setup () {
     
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
+
+    for (uint8_t i = 0; i < 8; i++) png_buffer[i] = (uint16_t *) malloc (sizeof (uint16_t) * IMAGE_WIDTH);
+    for (uint8_t i = 0; i < 16; i++) truecolor_png_buffer[i] = (uint8_t *) malloc (sizeof (uint8_t) * IMAGE_WIDTH * 3);
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
@@ -178,8 +197,7 @@ void loop () {
             else {
                 msg_displayed = false;
                 photo_captured = true;
-                // TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
-                Serial.printf ("%d\r\n", camera.Get_Fb ()->len);
+                TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
                 camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
                 camera.Set_Fb_Len (camera.Get_Fb ()->len);
                 Serial.println ("Displayed");
@@ -201,23 +219,100 @@ void loop () {
                 if (sd_present && photo_captured) {
                     TJpgDec.setJpgScale (FILE_JPG_SCALE);
                     TJpgDec.setCallback (Callback_Full);
-                    i = 0, i_data_size = 0;
 
-                    rc = jpeg.open ("/TEST8.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
-                    if (rc == JPEGE_SUCCESS) {
-                        Serial.println ("JPEG file opened successfully");
+                    int rc;
+                    const char *name = "/Test39.png";
+                    rc = png.open (name, My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    if (rc == PNG_SUCCESS) {
+                        Serial.println ("PNG file opened successfully");
 
-                        rc = jpeg.encodeBegin (&encoder, i_width, i_height, JPEGE_PIXEL_RGB565, JPEGE_SUBSAMPLE_444, JPEGE_Q_HIGH);
-                        if (rc == JPEGE_SUCCESS) {
-                            memset (uc_mcu, 0, sizeof (uc_mcu));
+                        rc = png.encodeBegin (1280, 720, PNG_PIXEL_TRUECOLOR, 24, NULL, 9);
+                        if (rc == PNG_SUCCESS) {
+                            Serial.println ("PNG encode began successfully");
+                            Serial.println ("Starting JPG dec");
+                            for (uint16_t j = 0; j < IMAGE_WIDTH; j++) {
+                                png_truecolor[j * 3 + 0] = 0x00;
+                                png_truecolor[j * 3 + 1] = 0x00;
+                                png_truecolor[j * 3 + 2] = 0xFF;
+                            }
 
-                            i_mcu_count = ((i_width + encoder.cx - 1) / encoder.cx) * ((i_height + encoder.cy - 1) / encoder.cy);
-                            TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
-                            i_data_size = jpeg.close ();
-                            Serial.print("Output file size = ");
-                            Serial.println(i_data_size, DEC);
+                            for (int i = 0; i < 720; i++) {
+                                rc = png.addLine (png_truecolor);
+                                if (rc != PNG_SUCCESS)      Serial.printf ("NOOOOOOOOOOOOOOOO %d\r\n", i);
+                                // Serial.printf ("%X%X%X | %X%X%X\r\n", png_truecolor[0], png_truecolor[1], png_truecolor[2], png_truecolor[3840-3], png_truecolor[3840-2], png_truecolor[3840-1]);
+                            }
+                            // TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+                            // for (uint8_t a = 0; a < 45; a++) {
+                            //     for (uint8_t i = 0; i < 8; i++) {
+                            //         // Serial.println (i);
+                            //         for (uint16_t j = 0; j < IMAGE_WIDTH * 3; j += 3) {
+                            //             png_truecolor[i][j] = 0x00;
+                            //             png_truecolor[i][j + 1] = 0x00;
+                            //             png_truecolor[i][j + 2] = 0xFF;
+                            //             // png_buffer[i][j] = 0x001F;
+                            //         }
+                            //         // memcpy (&(png_buffer[i][x]), &(bitmap[i * w]), w);
+                            //     }
+
+                              
+                            //     for (uint8_t i = 0; i < 8; i++) {
+                            //         // Serial.printf ("WHY %d\r\n", png_buffer[i][0]);
+                                    
+                            //         int err = png.addLine (png_truecolor[i]);
+                            //         if (err != PNG_SUCCESS) Serial.printf ("WHYYYYY     %d %d\r\n", a, i);    
+                            //         // png.addRGB565Line (png_buffer[i], png_temp_buffer);
+                            //     }   
+                            // }
+                            Serial.println ("FINISHED");
+                            Serial.println (png_file.size ());
+                            int32_t bytes_written = png.close();
+                            Serial.printf ("Output file size = %d\r\n", bytes_written);
+
+                            uint8_t png_iend_chunk[12] = {
+                                0x00, 0x00, 0x00, 0x00, // Length: 0 bytes
+                                0x49, 0x45, 0x4E, 0x44, // Chunk Type: IEND
+                                0xAE, 0x42, 0x60, 0x82  // CRC-32 Checksum for IEND
+                            };
+                            
+                            File repairfile = SD.open (name, "a");
+                            if (repairfile) {
+                                Serial.printf ("WHYYYYY %d\r\n", repairfile.size ());
+                                repairfile.seek (repairfile.size ());
+                                repairfile.write (png_iend_chunk, 12);
+                                Serial.printf ("WHYYYYY %d\r\n", repairfile.size ());
+                                repairfile.flush ();
+                                repairfile.close ();
+                                Serial.println ("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                            }
+                            
+                            // png_file.flush ();
+
+                            // if (png_file.seek (png_file.size () - 4)) {
+                            //     for (int i = 0; i < 4; i++) {
+                            //         Serial.printf ("%02X ", png_file.read());
+                            //     }
+                            // }
+                            // Serial.println ();
+                            
+
+                            // png_file.close ();
+
+                            File checkfile = SD.open (name, FILE_READ);
+                            if (checkfile) {
+                                uint32_t size = checkfile.size ();
+                                Serial.println (size);
+                                if (checkfile.seek (size - 4)) {
+                                    for (int i = 0; i < 4; i++) {
+                                        Serial.printf ("%02X ", checkfile.read ());
+                                    }
+                                }
+                            }
+                            Serial.println ();
+                            checkfile.close();
                         }
                     }
+
+                    // fHandle
                     
 
                     
@@ -269,20 +364,46 @@ bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
 }
 
 bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
-    // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
-    uint16_t left_bitmap[64];
-    uint16_t right_bitmap[64];
+    // if (y == IMAGE_HEIGHT) {
+    //     Serial.println ("WHAT");
+    //     for (uint8_t i = 0; i < h; i++) {
+    //         // Serial.printf ("WHY %d\r\n", png_buffer[i][0]);
+    //         png.addRGB565Line (png_buffer[i], png_temp_buffer);
+    //     }   
+    //     return false;
+    // }
 
-    for (uint8_t i = 0; i < 8; i++) {
-        for (uint8_t j = 0; j < 8; j++) {
-            left_bitmap[i * 8 + j] = bitmap[i * 16 + j];
-            right_bitmap[i * 8 + j] = bitmap[i * 16 + (j + 8)];
-        }
+    for (uint8_t i = 0; i < h; i++) {
+        Serial.println (i);
+        for (uint8_t j = 0; j < w; j++)
+            png_buffer[i][x + j] = 0x001F;
+        // memcpy (&(png_buffer[i][x]), &(bitmap[i * w]), w);
     }
-    jpeg.addMCU (&encoder, (uint8_t *) &left_bitmap, 8);
-    jpeg.addMCU (&encoder, (uint8_t *) &right_bitmap, 8);
+
+    if (x >= IMAGE_WIDTH - w) {
+        for (uint8_t i = 0; i < h; i++) {
+            // Serial.printf ("WHY %d\r\n", png_buffer[i][0]);
+            png.addRGB565Line (png_buffer[i], png_temp_buffer);
+        }   
+    }
+
+
+    // uint16_t left_bitmap[64];
+    // uint16_t right_bitmap[64];
+
+    // for (uint8_t i = 0; i < 8; i++) {
+    //     for (uint8_t j = 0; j < 8; j++) {
+    //         left_bitmap[i * 8 + j] = bitmap[i * 16 + j];
+    //         right_bitmap[i * 8 + j] = bitmap[i * 16 + (j + 8)];
+    //     }
+    // }
+    // jpeg.addMCU (&encoder, (uint8_t *) &left_bitmap, 8);
+    // jpeg.addMCU (&encoder, (uint8_t *) &right_bitmap, 8);
     
     // jpeg.addMCU (&encoder, (uint8_t *) &bitmap, 16);
+
+
+
     
     return true;
 }
