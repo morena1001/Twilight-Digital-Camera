@@ -17,6 +17,8 @@
 #define DISPLAY_START   0
 #define DISPLAY_WIDTH   172
 #define DISPLAY_HEIGHT  320
+#define IMAGE_WIDTH     720   
+#define IMAGE_HEIGHT    1280   
 
 #define MSG_DISPLAY_TIME        2500
 #define MSG_X                   0
@@ -62,10 +64,12 @@ TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
 
 enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED };
+enum Compression { X1 = 1, X2 = 2, X4 = 4, X8 = 8 };
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 void Display_Message (Message msg, uint16_t img_num = 0);
+void Compress_To_Display (uint8_t *buffer, size_t length, Compression compression);
 
 
 void * My_Open (const char *filename) {
@@ -182,6 +186,7 @@ void loop () {
                 Serial.printf ("%d\r\n", camera.Get_Fb ()->len);
                 camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
                 camera.Set_Fb_Len (camera.Get_Fb ()->len);
+                Compress_To_Display (camera.Get_Fb_Buf (), camera.Get_Fb_Len (), X4);
                 Serial.println ("Displayed");
                 // esp_camera_fb_return (camera.Get_Fb ());
             }
@@ -199,32 +204,32 @@ void loop () {
                 Serial.println ("Trying to save photo");
                 
                 if (sd_present && photo_captured) {
-                    TJpgDec.setJpgScale (FILE_JPG_SCALE);
-                    TJpgDec.setCallback (Callback_Full);
-                    i = 0, i_data_size = 0;
+                    // TJpgDec.setJpgScale (FILE_JPG_SCALE);
+                    // TJpgDec.setCallback (Callback_Full);
+                    // i = 0, i_data_size = 0;
 
-                    rc = jpeg.open ("/TEST8.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
-                    if (rc == JPEGE_SUCCESS) {
-                        Serial.println ("JPEG file opened successfully");
+                    // rc = jpeg.open ("/TEST8.jpg", My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    // if (rc == JPEGE_SUCCESS) {
+                    //     Serial.println ("JPEG file opened successfully");
 
-                        rc = jpeg.encodeBegin (&encoder, i_width, i_height, JPEGE_PIXEL_RGB565, JPEGE_SUBSAMPLE_444, JPEGE_Q_HIGH);
-                        if (rc == JPEGE_SUCCESS) {
-                            memset (uc_mcu, 0, sizeof (uc_mcu));
+                    //     rc = jpeg.encodeBegin (&encoder, i_width, i_height, JPEGE_PIXEL_RGB565, JPEGE_SUBSAMPLE_444, JPEGE_Q_HIGH);
+                    //     if (rc == JPEGE_SUCCESS) {
+                    //         memset (uc_mcu, 0, sizeof (uc_mcu));
 
-                            i_mcu_count = ((i_width + encoder.cx - 1) / encoder.cx) * ((i_height + encoder.cy - 1) / encoder.cy);
-                            TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
-                            i_data_size = jpeg.close ();
-                            Serial.print("Output file size = ");
-                            Serial.println(i_data_size, DEC);
-                        }
-                    }
+                    //         i_mcu_count = ((i_width + encoder.cx - 1) / encoder.cx) * ((i_height + encoder.cy - 1) / encoder.cy);
+                    //         TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+                    //         i_data_size = jpeg.close ();
+                    //         Serial.print("Output file size = ");
+                    //         Serial.println(i_data_size, DEC);
+                    //     }
+                    // }
                     
 
                     
                     
                     
-                    TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
-                    TJpgDec.setCallback (Callback);
+                    // TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
+                    // TJpgDec.setCallback (Callback);
                     
                     // camera.Photo_Save ();
                     // preferences.putUInt ("counter", camera.Get_Image_Count ());
@@ -248,6 +253,29 @@ void loop () {
 }
 
 
+
+void Compress_To_Display (uint8_t *buffer, size_t length, Compression compression) {
+    uint16_t x, y;
+    uint8_t w, h;
+
+    uint16_t block[172];
+
+    // DO NOT PRINT THE FIRST FOUR OR LAST FOUR
+    // for (int i = 0; i < 1 /*IMAGE_HEIGHT / compression*/; i++) {
+    //     for (int j = 0; j < IMAGE_WIDTH / compression; j++) {
+    //         block[j] =  ((uint16_t) buffer[(j * compression) + 1] << 8) | buffer[(j * compression) + 2];
+    //         block[j] =  ((uint16_t) buffer[(j * compression) + 1] << 8) | buffer[(j * compression) + 2];
+    //         block[j] =  ((uint16_t) buffer[(j * compression) + 1] << 8) | buffer[(j * compression) + 2];
+    //         block[j] =  ((uint16_t) buffer[(j * compression) + 1] << 8) | buffer[(j * compression) + 2];
+    //     }
+    // }
+
+    for (int i = 0; i < 172; i++) {
+        block[i] = ((uint16_t) buffer[i * 2] << 8) | buffer[(i * 2) + 1];
+    }
+
+    tft.pushImage (0, 0, 172, 1, block);
+}
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
