@@ -25,7 +25,7 @@ Camera::Camera () {
     camera.pixel_format     = PIXFORMAT_RGB565; // PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB888;
     camera.frame_size       = FRAMESIZE_VGA; // FRAMESIZE_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 3;
-    camera.fb_count         = 2;
+    camera.fb_count         = 1;
     camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
     camera.fb_location      = CAMERA_FB_IN_PSRAM;
 }
