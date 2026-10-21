@@ -19,11 +19,11 @@ Camera::Camera () {
     camera.pin_href         = HREF_GPIO_NUM;
     camera.pin_pclk         = PCLK_GPIO_NUM;
 
-    camera.xclk_freq_hz     = 10000000; //20000000;
+    camera.xclk_freq_hz     = 12000000; //20000000;
     camera.ledc_timer       = LEDC_TIMER_0;
     camera.ledc_channel     = LEDC_CHANNEL_0;
-    camera.pixel_format     = PIXFORMAT_JPEG; //PIXFORMAT_YUV420; // PIXFORMAT_RGB888;
-    camera.frame_size       = FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
+    camera.pixel_format     = PIXFORMAT_RGB565; //PIXFORMAT_YUV420; // PIXFORMAT_RGB888;
+    camera.frame_size       = FRAMESIZE_VGA; //FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 3;
     camera.fb_count         = 1;
     camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
@@ -40,7 +40,7 @@ esp_err_t Camera::Init_Camera () {
     // s->set_reg (s, 0x4407, 0xff, 0x02); 
     // s->set_reg(s, 0x3621, 0xFF, 0xC0); // Configures vertical/horizontal scaling factors
     // s->set_reg(s, 0x4705, 0xFF, 0x01);
-    s->set_reg(s, 0x4342, 0xFF, 0x01);
+    // s->set_reg(s, 0x4342, 0xFF, 0x01);
     // s->set_framesize (s, camera.frame_size);
 
     // s->set_gain_ctrl (s, 0);
