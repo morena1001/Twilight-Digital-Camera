@@ -92,11 +92,11 @@ int32_t My_Read (PNGFILE *handle, uint8_t *buffer, int32_t length) {
     int32_t iBytesRead;
     iBytesRead = length;
     File *f = static_cast<File *>(handle->fHandle);
-    Serial.printf("Read: requested size = %d\n", length);
+    // Serial.printf("Read: requested size = %d\n", length);
     iBytesRead = (int32_t)f->read(buffer, iBytesRead);
     handle->iPos = f->position();
-    Serial.printf("Read %d bytes\n", iBytesRead);
-    Serial.printf("New Pos: %d\n", handle->iPos);
+    // Serial.printf("Read %d bytes\n", iBytesRead);
+    // Serial.printf("New Pos: %d\n", handle->iPos);
     return iBytesRead;
 }
 
@@ -107,7 +107,7 @@ int32_t My_Write (PNGFILE *handle, uint8_t *buffer, int32_t length) {
     
     File *f = (File *) handle->fHandle;
     handle->iPos += length;
-    Serial.printf("Write %d bytes, new pos = %d\n", length, handle->iPos);
+    // Serial.printf("Write %d bytes, new pos = %d\n", length, handle->iPos);
     return f->write (buffer, length);
 }
 
@@ -120,7 +120,7 @@ int32_t My_Seek (PNGFILE *handle, int32_t position) {
     File *f = (File *)handle->fHandle;
     f->seek(position);
     handle->iPos = (int)f->position();
-    Serial.printf("Seek: %d\n", (int)position);
+    // Serial.printf("Seek: %d\n", (int)position);
     return handle->iPos;
 }
 
@@ -156,15 +156,15 @@ void setup () {
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
 
-    // char file_name [32];
-    // for (uint32_t i = 1; i < 4294967295; i++) {
-    //     sprintf (file_name, "/image%d.jpg", i);
-    //     if (!SD.exists (file_name)) {
-    //         camera.Set_Image_Count (i);
-    //         Serial.printf ("FOUND IT : %d\r\n", i);
-    //         break;
-    //     }
-    // }
+    char file_name [32];
+    for (uint32_t i = 1; i < 4294967295; i++) {
+        sprintf (file_name, "/image%d.jpg", i);
+        if (!SD.exists (file_name)) {
+            camera.Set_Image_Count (i);
+            Serial.printf ("FOUND IT : %d\r\n", i);
+            break;
+        }
+    }
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
@@ -246,24 +246,24 @@ void loop () {
                     TJpgDec.setJpgScale (FILE_JPG_SCALE);
                     TJpgDec.setCallback (Callback_Full);
 
-                    // char file_name [32];
-                    // for (uint32_t i = camera.Get_Image_Count (); i < 4294967295; i++) {
-                    //     sprintf (file_name, "/image%d.jpg", i);
-                    //     if (!SD.exists (file_name)) {
-                    //         camera.Set_Image_Count (i);
-                    //         break;
-                    //     }
-                    // }
-                    // Serial.printf ("CHOOSING NUMBER : %d\r\n", camera.Get_Image_Count ());
-                    // sprintf (file_name, "/image%d.jpg", camera.Get_Image_Count ());
+                    char name [32];
+                    for (uint32_t i = camera.Get_Image_Count (); i < 4294967295; i++) {
+                        sprintf (name, "/image%d.jpg", i);
+                        if (!SD.exists (name)) {
+                            camera.Set_Image_Count (i);
+                            break;
+                        }
+                    }
+                    Serial.printf ("CHOOSING NUMBER : %d\r\n", camera.Get_Image_Count ());
+                    sprintf (name, "/image%d.jpg", camera.Get_Image_Count ());
                     int rc;
-                    const char *name = "/Test44.png";
+                    // const char *name = "/Test44.png";
                     // rc = png.open (final_png, 640 * 480 * 3);
                     rc = png.open (name, My_Open, My_Close, My_Read, My_Write, My_Seek);
                     if (rc == PNG_SUCCESS) {
                         Serial.println ("PNG file opened successfully");
 
-                        rc = png.encodeBegin (640, 480, PNG_PIXEL_TRUECOLOR, 24, NULL, 9);
+                        rc = png.encodeBegin (640, 480, PNG_PIXEL_TRUECOLOR, 24, NULL, 5);
                         // rc = png.encodeBegin (128, 128, PNG_PIXEL_TRUECOLOR, 24, NULL, 9);
                         if (rc == PNG_SUCCESS) {
                             Serial.println ("PNG encode began successfully");
