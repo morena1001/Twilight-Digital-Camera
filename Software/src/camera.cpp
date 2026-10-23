@@ -26,7 +26,7 @@ Camera::Camera () {
     camera.frame_size       = FRAMESIZE_VGA; //FRAMESIZE_HD; // FRAMESIZE_P_HD; // FRAMESIZE_FHD; // FRAMESIZE_QVGA; // FRAMESIZE_UXGA;
     camera.jpeg_quality     = 3;
     camera.fb_count         = 1;
-    camera.grab_mode        = CAMERA_GRAB_LATEST; //CAMERA_GRAB_WHEN_EMPTY;
+    camera.grab_mode        = CAMERA_GRAB_WHEN_EMPTY; //CAMERA_GRAB_LATEST;
     camera.fb_location      = CAMERA_FB_IN_PSRAM;
 }
 
@@ -85,7 +85,7 @@ esp_err_t Camera::Init_Camera () {
     // s->set_ae_level (s, 2);
 
     // Flush out first couple of frames to properly warm up sensors
-    for (uint8_t i = 0; i < 1/*5*/; i++) {
+    for (uint8_t i = 0; i < 5; i++) {
         camera_fb_t *fb = esp_camera_fb_get ();
         esp_camera_fb_return (fb);
     }

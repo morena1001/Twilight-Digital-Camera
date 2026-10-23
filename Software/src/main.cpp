@@ -27,6 +27,8 @@
 #define MSG_BOX_ROUNDNESS       5  
 #define MSG_HORIZONTAL_PADDING  12   
 #define MSG_CHAR_WIDTH          6
+#define PROG_NUM_X              53
+#define PROG_NUM_Y              20
 
 #define DISPLAY_JPG_SCALE       4
 #define FILE_JPG_SCALE          1
@@ -59,7 +61,7 @@ Preferences preferences;
 TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
 
-enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED };
+enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED, SHOW_PROGRESS, UPDATE_PROGRESS };
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
@@ -220,6 +222,8 @@ void loop () {
                 photo_captured = false;
             }
             camera.Set_Fb (esp_camera_fb_get ());
+            esp_camera_fb_return (camera.Get_Fb ());
+            camera.Set_Fb (esp_camera_fb_get ());
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
             else {
                 msg_displayed = false;
@@ -288,6 +292,7 @@ void loop () {
                                 }
 
                                 png.addLine (png_truecolor);
+                                Display_Message (i == 0 ? SHOW_PROGRESS : UPDATE_PROGRESS, (100 * i) / IMAGE_HEIGHT);
                             }
 
                             // for (uint16_t i = 0; i < IMAGE_WIDTH; i++) {
@@ -426,14 +431,25 @@ bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitm
 }
 
 void Display_Message (Message msg, uint16_t img_num) {
+    uint8_t char_length = 0;
+
     // Reset display if message is already displayed
     if (msg_displayed) {
-        if (photo_captured)     Compress_To_Display (camera.Get_Fb_Buf ());// TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+        if (msg == UPDATE_PROGRESS) {
+            if (img_num % 10 != 0)      return;
+            char_length = 14;
+            if (img_num == 100)     char_length++;
+
+            tft.fillSmoothRoundRect (PROG_NUM_X, PROG_NUM_Y, ((char_length - 12) * MSG_CHAR_WIDTH), MSG_HEIGHT, MSG_BOX_ROUNDNESS, TFT_DARKGREY, TFT_DARKGREY);
+            tft.setCursor (PROG_NUM_X, PROG_NUM_Y);
+            tft.printf ("%d%%", img_num);
+            return;
+        }
+        else if (photo_captured)     Compress_To_Display (camera.Get_Fb_Buf ());// TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
         else                    tft.fillScreen (TFT_BLACK);
     }
 
     // Calculate final length of bounding box
-    uint8_t char_length = 0;
     switch (msg) {
         case SD_EJECTABLE:      char_length = 22; break;
         case SD_DISCOVERED:     char_length = 17; break;
@@ -446,6 +462,7 @@ void Display_Message (Message msg, uint16_t img_num) {
             else if (img_num >= 1)      char_length += 1;
         } 
         case PHOTO_NOT_SAVED:   char_length += 24; break;
+        case SHOW_PROGRESS:     char_length = 12; break;
     }
 
     // Print bound box
@@ -459,6 +476,17 @@ void Display_Message (Message msg, uint16_t img_num) {
         case NO_SD_DISCOVERED:  tft.print  ("SD card not connected"); break;
         case PHOTO_SAVED:       tft.printf ("Photo saved as image%d.jpg", img_num); break;
         case PHOTO_NOT_SAVED:   tft.print  ("Photo could not be saved"); break;
+        case SHOW_PROGRESS:     {
+            tft.print  ("Saving: 0%%");
+            // int16_t x = tft.getCursorX (); 
+            // int16_t y = tft.getCursorY (); 
+            // Serial.printf ("%d %d\r\n", x, y);
+            // tft.print ("0\%");
+            // x = tft.getCursorX (); 
+            // y = tft.getCursorY (); 
+            // Serial.printf ("%d %d | %d\r\n", x, y, (MSG_HORIZONTAL_PADDING + (char_length * MSG_CHAR_WIDTH)));
+            break;
+        }
     }
 
     msg_displayed = true;
