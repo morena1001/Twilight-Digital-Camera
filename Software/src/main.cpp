@@ -169,6 +169,9 @@ void setup () {
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
 
+    if (sd_present)     Display_Message (SD_DISCOVERED);
+    else                Display_Message (NO_SD_DISCOVERED);
+
     Serial.println ("Begin photo capture");
 }
 
