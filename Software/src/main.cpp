@@ -5,6 +5,7 @@
 
 #include "TFT_eSPI.h"
 #include "TJpg_Decoder.h"
+#include "PNGenc.h"
 
 #define CAPTURE_PIN     1
 #define SAVE_PIN        2
@@ -16,6 +17,8 @@
 #define DISPLAY_START   0
 #define DISPLAY_WIDTH   172
 #define DISPLAY_HEIGHT  320
+#define IMAGE_WIDTH     640   
+#define IMAGE_HEIGHT    480   
 
 #define MSG_DISPLAY_TIME        2500
 #define MSG_X                   0
@@ -24,9 +27,17 @@
 #define MSG_BOX_ROUNDNESS       5  
 #define MSG_HORIZONTAL_PADDING  12   
 #define MSG_CHAR_WIDTH          6
+#define PROG_NUM_X              53
+#define PROG_NUM_Y              20
+
+#define DISPLAY_JPG_SCALE       4
+#define FILE_JPG_SCALE          1
 
 Camera camera;
 TFT_eSPI tft = TFT_eSPI();
+PNGENC png;
+File png_file;
+uint8_t png_truecolor[640 * 3];
 
 bool sd_present = false;
 bool photo_captured = false;
@@ -50,10 +61,70 @@ Preferences preferences;
 TaskHandle_t screen_handle = NULL;
 TaskHandle_t camera_handle = NULL;
 
-enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED };
+enum Message { SD_EJECTABLE, SD_DISCOVERED, NO_SD_DISCOVERED, PHOTO_SAVED, PHOTO_NOT_SAVED, SHOW_PROGRESS, UPDATE_PROGRESS };
 
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
+bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
 void Display_Message (Message msg, uint16_t img_num = 0);
+void Compress_To_Display (uint8_t *buffer);
+
+void * My_Open (const char *filename) {
+    // png_file = SD.open (filename, FILE_WRITE, true);
+    // return &png_file;
+    png_file = SD.open(filename, "w+r"); // This option is needed to both read and write
+  return &png_file;
+}
+
+void My_Close (PNGFILE *handle) {
+    // png_file.close ();
+    
+    File *f = (File *) handle->fHandle;
+    f->flush ();
+    f->close ();
+}
+
+int32_t My_Read (PNGFILE *handle, uint8_t *buffer, int32_t length) {
+    // int32_t bytes_read;
+    // bytes_read = length;
+    // File *f = (File *) handle->fHandle;
+    // bytes_read = (int32_t )f->read (buffer, bytes_read);
+    // handle->iPos = f->position ();
+    // return bytes_read;
+
+    int32_t iBytesRead;
+    iBytesRead = length;
+    File *f = static_cast<File *>(handle->fHandle);
+    // Serial.printf("Read: requested size = %d\n", length);
+    iBytesRead = (int32_t)f->read(buffer, iBytesRead);
+    handle->iPos = f->position();
+    // Serial.printf("Read %d bytes\n", iBytesRead);
+    // Serial.printf("New Pos: %d\n", handle->iPos);
+    return iBytesRead;
+}
+
+int32_t My_Write (PNGFILE *handle, uint8_t *buffer, int32_t length) {
+    // int32_t bytesWritten = png_file.write(buffer, length);
+    // handle->iPos += bytesWritten;
+    // return bytesWritten;
+    
+    File *f = (File *) handle->fHandle;
+    handle->iPos += length;
+    // Serial.printf("Write %d bytes, new pos = %d\n", length, handle->iPos);
+    return f->write (buffer, length);
+}
+
+int32_t My_Seek (PNGFILE *handle, int32_t position) {
+    // File *f = (File *) handle->fHandle;
+    // if (!f->seek (position)) return -1;
+    // handle->iPos = (int) f->position ();
+    // return handle->iPos;
+
+    File *f = (File *)handle->fHandle;
+    f->seek(position);
+    handle->iPos = (int)f->position();
+    // Serial.printf("Seek: %d\n", (int)position);
+    return handle->iPos;
+}
 
 void setup () {
     Serial.begin (115200);
@@ -81,21 +152,34 @@ void setup () {
     tft.pushImage (DISPLAY_START, DISPLAY_START, DISPLAY_HEIGHT, DISPLAY_WIDTH, splash_screen);
     digitalWrite (BL_PIN, HIGH);
     
-    TJpgDec.setJpgScale (4);
+    TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
     TJpgDec.setCallback (Callback);
     
     preferences.begin ("memory", false);
     camera.Set_Image_Count (preferences.getUInt ("counter", 1));
+
+    char file_name [32];
+    for (uint32_t i = 1; i < 4294967295; i++) {
+        sprintf (file_name, "/image%d.jpg", i);
+        if (!SD.exists (file_name)) {
+            camera.Set_Image_Count (i);
+            Serial.printf ("FOUND IT : %d\r\n", i);
+            break;
+        }
+    }
     
     delay (1000);    
     tft.fillScreen (TFT_BLACK);
+
+    if (sd_present)     Display_Message (SD_DISCOVERED);
+    else                Display_Message (NO_SD_DISCOVERED);
 
     Serial.println ("Begin photo capture");
 }
 
 void loop () {
     if (msg_displayed && (millis () - msg_display_time) > MSG_DISPLAY_TIME) {
-        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+        if (photo_captured)     Compress_To_Display (camera.Get_Fb_Buf ());// TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
         else                    tft.fillScreen (TFT_BLACK);
 
         msg_displayed = false;
@@ -138,13 +222,17 @@ void loop () {
                 photo_captured = false;
             }
             camera.Set_Fb (esp_camera_fb_get ());
+            esp_camera_fb_return (camera.Get_Fb ());
+            camera.Set_Fb (esp_camera_fb_get ());
             if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
             else {
                 msg_displayed = false;
                 photo_captured = true;
-                TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                // TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb ()->buf, camera.Get_Fb ()->len);
+                Serial.printf ("%d\r\n", camera.Get_Fb ()->len);
                 camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
                 camera.Set_Fb_Len (camera.Get_Fb ()->len);
+                Compress_To_Display (camera.Get_Fb_Buf ());
                 Serial.println ("Displayed");
                 // esp_camera_fb_return (camera.Get_Fb ());
             }
@@ -162,7 +250,110 @@ void loop () {
                 Serial.println ("Trying to save photo");
                 
                 if (sd_present && photo_captured) {
-                    camera.Photo_Save ();
+                    TJpgDec.setJpgScale (FILE_JPG_SCALE);
+                    TJpgDec.setCallback (Callback_Full);
+
+                    char name [32];
+                    for (uint32_t i = camera.Get_Image_Count (); i < 4294967295; i++) {
+                        sprintf (name, "/image%d.jpg", i);
+                        if (!SD.exists (name)) {
+                            camera.Set_Image_Count (i);
+                            break;
+                        }
+                    }
+                    Serial.printf ("CHOOSING NUMBER : %d\r\n", camera.Get_Image_Count ());
+                    sprintf (name, "/image%d.jpg", camera.Get_Image_Count ());
+                    int rc;
+                    // const char *name = "/Test44.png";
+                    // rc = png.open (final_png, 640 * 480 * 3);
+                    rc = png.open (name, My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    if (rc == PNG_SUCCESS) {
+                        Serial.println ("PNG file opened successfully");
+
+                        rc = png.encodeBegin (640, 480, PNG_PIXEL_TRUECOLOR, 24, NULL, 5);
+                        // rc = png.encodeBegin (128, 128, PNG_PIXEL_TRUECOLOR, 24, NULL, 9);
+                        if (rc == PNG_SUCCESS) {
+                            Serial.println ("PNG encode began successfully");
+                            // Serial.println ("Starting JPG dec");
+
+                            uint8_t *buffer = camera.Get_Fb_Buf ();
+                            uint16_t pixel, R, G, B;
+
+                            for (uint16_t i = 0; i < IMAGE_HEIGHT; i++) {
+                                for (uint16_t j = 0; j < IMAGE_WIDTH; j++) {
+                                    pixel = ((uint16_t) buffer[(i * 1280) + (j * 2)] << 8) | buffer[(i * 1280) + (j * 2) + 1];
+                                    // R = ((pixel >> 11) & 0x1F);
+                                    // G = ((pixel >> 5) & 0x3F);
+                                    // B = (pixel & 0x1F);
+                                    
+                                    png_truecolor[j * 3 + 0] = ((((pixel >> 11) & 0x1F) * 527) + 23) >> 6;
+                                    png_truecolor[j * 3 + 1] = ((((pixel >> 5) & 0x3F) * 259) + 33) >> 6;
+                                    png_truecolor[j * 3 + 2] = (((pixel & 0x1F) * 527) + 23) >> 6;
+                                }
+
+                                png.addLine (png_truecolor);
+                                Display_Message (i == 0 ? SHOW_PROGRESS : UPDATE_PROGRESS, (100 * i) / IMAGE_HEIGHT);
+                            }
+
+                            // for (uint16_t i = 0; i < IMAGE_WIDTH; i++) {
+                            //     png_truecolor[i * 3 + 0] = 0x00;
+                            //     png_truecolor[i * 3 + 1] = 0x7F;
+                            //     png_truecolor[i * 3 + 2] = 0x7F;
+                            // }
+
+                            // for (int i = 0; i < IMAGE_HEIGHT; i++) {
+                            //     png.addLine (png_truecolor);
+                            // }
+
+                                int iDataSize = png.close();
+                                Serial.printf("640 x 480 PNG image compressed to %d bytes\r\n", iDataSize);
+                                Serial.printf ("name : %s\r\n", name);
+
+                                // png_file = SD.open (name, FILE_WRITE, true);
+                                // if (png_file) {
+                                //     png_file.write (final_png, iDataSize);
+                                //     png_file.close ();
+                                //     Serial.println ("SAVED FILE");
+                                // } else {
+                                //     Serial.println ("DID NOT SAVE FILE");
+                                // }
+
+                        }
+                    
+                    
+                    // rc = jpeg.open (file_name, My_Open, My_Close, My_Read, My_Write, My_Seek);
+                    // if (rc == JPEGE_SUCCESS) {
+                    //     Serial.println ("JPEG file opened successfully");
+                    //     rc = jpeg.encodeBegin (&encoder, IMAGE_WIDTH, IMAGE_HEIGHT, JPEGE_PIXEL_RGB565, JPEGE_SUBSAMPLE_444, JPEGE_Q_BEST /*JPEGE_Q_HIGH*/);
+                    //     // rc = jpeg.encodeBegin (&encoder, i_width, i_height, JPEGE_PIXEL_RGB888, JPEGE_SUBSAMPLE_444, JPEGE_Q_HIGH);
+                    //     if (rc == JPEGE_SUCCESS) {
+                    //         // TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+                    //         uint8_t *buffer = camera.Get_Fb_Buf ();
+                    //         for (uint8_t i = 0; i < 60; i++) {
+                    //             for (uint8_t j = 0; j < 80; j++) {
+                    //                 for (uint8_t k = 0; k < 8; k++) {
+                    //                     for (uint8_t l = 0; l < 8; l++) {
+                    //                         mcu[(k * 8) + l] = ((uint16_t) buffer[(j * 16) + (l * 2) + (i * 10240) + (k * 1280)] << 8) | buffer[(j * 16) + (l * 2) + (i * 10240) + (k * 1280) + 1];
+                    //                     }
+                    //                 }
+                    //                 jpeg.addMCU (&encoder, (uint8_t *) &mcu, 8);
+                    //             }
+                    //         }
+                    //         i_data_size = jpeg.close ();
+                    //         Serial.printf("Name : %s, Size : %d\r\n", file_name, i_data_size);
+                    //     }
+                    // }
+                    }
+                    
+
+                    
+                    
+                    
+                    // TJpgDec.setJpgScale (DISPLAY_JPG_SCALE);
+                    // TJpgDec.setCallback (Callback);
+                    
+                    // camera.Photo_Save ();
+                    camera.Set_Image_Count (camera.Get_Image_Count () + 1);
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
                     tft.fillScreen (TFT_BLACK);
@@ -185,21 +376,80 @@ void loop () {
 
 
 
+void Compress_To_Display (uint8_t *buffer) {
+    uint16_t x, y;
+    uint8_t w, h;
+
+    uint16_t block[320];
+
+    for (int j = 0; j < 172 /*240*/; j++) {
+        for (int i = 0; i < 320; i++) {
+            // Simple pixel skipping 
+            block[i] = ((uint16_t) buffer[(i * 4) + ((j + 34) * 2 * 2 * 640)] << 8) | buffer[(i * 4) + ((j + 34) * 2 * 2 * 640) + 1];
+        }
+
+        tft.pushImage (0, j, 320, 1, block);
+    }
+}
+
 bool Callback (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
     if (y >= tft.height ())     return false;
+    for (uint16_t i = 0; i < w * h; i++) {
+        // if (bitmap[i] < 0x18C3) Serial.println ("NOOO");
+        // bitmap[i] -= 0x18C3; // subtract 6 from r and g, and 3 from b
+        // bitmap[i] += 0x0003;
+        // if (bitmap[i] & 0x001F >= 0x03)             bitmap[i] -= 0x0003;
+        // else        bitmap[i] -= bitmap[i] & 0x001F;
+        if ((bitmap[i] & 0x07E0) >> 0x05 >= 0x05)     bitmap[i] -= 0x00A0; //0x00C0;
+        // else        bitmap[i] -= (bitmap[i] & 0x07E0) >> 0x05;
+        if (bitmap[i] >> 0x0B >= 0x06)              bitmap[i] -= 0x3000;
+        // else        bitmap[i] -= bitmap[i] >> 0x0B;
+    }
+    
     tft.pushImage (x, y, w, h, bitmap);
     return true;
 }
 
+bool Callback_Full (int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+    // Serial.printf ("%d  %d | %d  %d | %d\r\n", x, y, w, h, w * h);
+    uint16_t left_bitmap[64];
+    uint16_t right_bitmap[64];
+
+    for (uint8_t i = 0; i < 8; i++) {
+        for (uint8_t j = 0; j < 8; j++) {
+            left_bitmap[i * 8 + j] = bitmap[i * 16 + j];
+            right_bitmap[i * 8 + j] = bitmap[i * 16 + (j + 8)];
+        }
+    }
+    // jpeg.addMCU (&encoder, (uint8_t *) &left_bitmap, 8);
+    // jpeg.addMCU (&encoder, (uint8_t *) &right_bitmap, 8);
+    
+    // jpeg.addMCU (&encoder, (uint8_t *) &bitmap, 16);
+    
+    return true;
+}
+
 void Display_Message (Message msg, uint16_t img_num) {
+    uint8_t char_length = 0;
+
     // Reset display if message is already displayed
     if (msg_displayed) {
-        if (photo_captured)     TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
+        if (msg == UPDATE_PROGRESS) {
+            if (img_num % 10 != 0)      return;
+            char_length = 14;
+            if (img_num == 100)     char_length++;
+
+            tft.fillSmoothRoundRect (PROG_NUM_X, PROG_NUM_Y, ((char_length - 12) * MSG_CHAR_WIDTH), MSG_HEIGHT, MSG_BOX_ROUNDNESS, TFT_DARKGREY, TFT_DARKGREY);
+            tft.setCursor (PROG_NUM_X, PROG_NUM_Y);
+            tft.printf ("%d%%", img_num);
+            return;
+        }
+        else if (photo_captured)     Compress_To_Display (camera.Get_Fb_Buf ());// TJpgDec.drawJpg (DISPLAY_START, DISPLAY_START, camera.Get_Fb_Buf (), camera.Get_Fb_Len ());
         else                    tft.fillScreen (TFT_BLACK);
     }
 
     // Calculate final length of bounding box
-    uint8_t char_length = 0;
     switch (msg) {
         case SD_EJECTABLE:      char_length = 22; break;
         case SD_DISCOVERED:     char_length = 17; break;
@@ -212,6 +462,7 @@ void Display_Message (Message msg, uint16_t img_num) {
             else if (img_num >= 1)      char_length += 1;
         } 
         case PHOTO_NOT_SAVED:   char_length += 24; break;
+        case SHOW_PROGRESS:     char_length = 12; break;
     }
 
     // Print bound box
@@ -225,6 +476,17 @@ void Display_Message (Message msg, uint16_t img_num) {
         case NO_SD_DISCOVERED:  tft.print  ("SD card not connected"); break;
         case PHOTO_SAVED:       tft.printf ("Photo saved as image%d.jpg", img_num); break;
         case PHOTO_NOT_SAVED:   tft.print  ("Photo could not be saved"); break;
+        case SHOW_PROGRESS:     {
+            tft.print  ("Saving: 0%%");
+            // int16_t x = tft.getCursorX (); 
+            // int16_t y = tft.getCursorY (); 
+            // Serial.printf ("%d %d\r\n", x, y);
+            // tft.print ("0\%");
+            // x = tft.getCursorX (); 
+            // y = tft.getCursorY (); 
+            // Serial.printf ("%d %d | %d\r\n", x, y, (MSG_HORIZONTAL_PADDING + (char_length * MSG_CHAR_WIDTH)));
+            break;
+        }
     }
 
     msg_displayed = true;
