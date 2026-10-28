@@ -54,9 +54,9 @@ esp_err_t Camera::Init_Camera () {
 
     
     
-    // s->set_brightness (s, -1);
-    // s->set_contrast (s, 1);
-    s->set_saturation (s, 1);
+    // s->set_brightness (s, 1);
+    s->set_contrast (s, -2);
+    // s->set_saturation (s, 1);
 
 
 
