@@ -32,7 +32,7 @@
 #define DISPLAY_JPG_SCALE       4
 #define FILE_JPG_SCALE          1
 
-#define WARMTH_COEF             -0.15f // ((-100.0f / 100.0f) * 0.15f)
+#define WARMTH_COEF             -0.15f // ((-100.0f / 100.0f) * 0.15f) -0.225
 #define TINT_COEF               -0.09f // ((-40.0f / 100.0f) * 0.15f)
 #define MIDPOINT                128.0f
 #define CONTRAST_FACTOR         1.05f
@@ -256,8 +256,12 @@ void loop () {
                                     B = (((pixel & 0x1F) * 527) + 23) >> 6;
                                     
                                     png_truecolor[j * 3 + 0] = (uint8_t) ((float) (R) + ((float) (R) * WARMTH_COEF) + ((float) (R) * TINT_COEF));
-                                    png_truecolor[j * 3 + 1] = G;
+                                    png_truecolor[j * 3 + 1] = G; //(uint8_t) ((float) (G) + ((float) (G) * WARMTH_COEF) + ((float) (G) * TINT_COEF));
                                     png_truecolor[j * 3 + 2] = (uint8_t) ((float) (B) + ((float) (B) * WARMTH_COEF) + ((float) (B) * TINT_COEF));
+
+                                    png_truecolor[j * 3 + 0] -= (png_truecolor[j * 3 + 0] < 16 ? png_truecolor[j * 3 + 0] : 16);
+                                    png_truecolor[j * 3 + 1] -= (png_truecolor[j * 3 + 1] < 16 ? png_truecolor[j * 3 + 1] : 16);
+                                    png_truecolor[j * 3 + 2] += 56;
 
                                     // png_truecolor[j * 3 + 0] = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 0]) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 0]) - MIDPOINT)));  
                                     // png_truecolor[j * 3 + 1] = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 1]) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 1]) - MIDPOINT))); 
@@ -321,12 +325,32 @@ void Compress_To_Display (uint8_t *buffer) {
 
             // R = (uint8_t) ((float) (R) + ((float) (R) * warmth));
             // B = (uint8_t) ((float) (B) + ((float) (B) * warmth));
+
             R = (uint8_t) ((float) (R) + ((float) (R) * WARMTH_COEF) + ((float) (R) * TINT_COEF));
+            // G = (uint8_t) ((float) (G) + ((float) (G) * WARMTH_COEF) + ((float) (G) * TINT_COEF));
             B = (uint8_t) ((float) (B) + ((float) (B) * WARMTH_COEF) + ((float) (B) * TINT_COEF));
 
-            R = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT))); 
-            G = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT))); 
-            B = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT))); 
+            R -= (R < 2 ? R : 2);
+            G -= (G < 4 ? G : 4);
+            // G = G;
+            B += 7;
+
+            // Serial.printf ("%d  ",B);
+
+            // R = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT))); 
+            // G = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT))); 
+            // B = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT))); 
+
+            // float rw = 0.299f;
+            // float gw = 0.587f;
+            // float bw = 0.114f;
+            // float gray_r = (float) R * rw;
+            // float gray_g = (float) G * gw;
+            // float gray_b = (float) B * bw;
+            // R = (uint8_t) ((gray_r + 1.2f * ((float) R - gray_r)) < 0 ? 0 : (gray_r + 1.2f * ((float) R - gray_r)));
+            // G = (uint8_t) ((gray_g + 1.2f * ((float) G - gray_g)) < 0 ? 0 : (gray_g + 1.2f * ((float) G - gray_g)));
+            // B = (uint8_t) ((gray_b + 1.2f * ((float) B - gray_b)) < 0 ? 0 : (gray_b + 1.2f * ((float) B - gray_b)));
+
 
 
 
@@ -334,7 +358,7 @@ void Compress_To_Display (uint8_t *buffer) {
             
             block[i] = (R << 11) | ((G << 5) & 0x7FF) | (B & 0x1F);
         }
-
+        // Serial.println ();
         tft.pushImage (0, j, 320, 1, block);
     }
 }
