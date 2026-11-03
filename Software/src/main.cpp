@@ -102,13 +102,9 @@ int32_t My_Seek (PNGFILE *handle, int32_t position) {
 }
 
 void setup () {
-    Serial.begin (115200);
-    while (!Serial);
-
     if (camera.Init_Camera () != ESP_OK)    return;
 
     if (SD.begin (SD_CARD_PIN) && SD.cardType () != CARD_NONE)  sd_present = true;
-    else    Serial.println ("Micro sd card not detected. Unable to save photos");
 
     pinMode (CAPTURE_PIN, INPUT_PULLUP);
     pinMode (SAVE_PIN, INPUT_PULLUP);
@@ -135,7 +131,6 @@ void setup () {
         sprintf (file_name, "/image%d.jpg", i);
         if (!SD.exists (file_name)) {
             camera.Set_Image_Count (i);
-            Serial.printf ("FOUND IT : %d\r\n", i);
             break;
         }
     }
@@ -145,8 +140,6 @@ void setup () {
 
     if (sd_present)     Display_Message (SD_DISCOVERED);
     else                Display_Message (NO_SD_DISCOVERED);
-
-    Serial.println ("Begin photo capture");
 }
 
 void loop () {
@@ -163,19 +156,14 @@ void loop () {
     // long press
     if (save_reading == LOW && !long_press_detected && save_button_pressed && (millis () - long_press_time) > LP_DELAY) {
         if (sd_present) {
-            Serial.println ("Trying to eject sd card");
             SD.end ();
-            Serial.println ("sd card safe to eject");
             Display_Message (SD_EJECTABLE);
             sd_present = false;
         } else {
-            Serial.println ("Trying to open sd card");
             if (SD.begin_wot (SD_CARD_PIN) && SD.cardType () != CARD_NONE) {
                 sd_present = true;
-                Serial.println ("Micro sd card detected and opened");
                 Display_Message (SD_DISCOVERED);
             } else {
-                Serial.println ("Micro sd card not detected. Unable to save photos");
                 Display_Message (NO_SD_DISCOVERED);
             }
         }
@@ -188,7 +176,6 @@ void loop () {
     if ((millis () - capture_last_db_time) > DB_DELAY && capture_reading != capture_state) {
         capture_state = capture_reading;
         if (capture_state == LOW) {
-            Serial.println ("Trying to display photo");
             if (photo_captured) {
                 esp_camera_fb_return (camera.Get_Fb ());
                 photo_captured = false;
@@ -196,16 +183,13 @@ void loop () {
             camera.Set_Fb (esp_camera_fb_get ());
             esp_camera_fb_return (camera.Get_Fb ());
             camera.Set_Fb (esp_camera_fb_get ());
-            if (!camera.Get_Fb ())    Serial.println ("Could not get photo buffer");
+            if (!camera.Get_Fb ());
             else {
                 msg_displayed = false;
                 photo_captured = true;
-                Serial.printf ("%d\r\n", camera.Get_Fb ()->len);
                 camera.Set_Fb_Buf (camera.Get_Fb ()->buf);
                 camera.Set_Fb_Len (camera.Get_Fb ()->len);
                 Compress_To_Display (camera.Get_Fb_Buf ());
-                Serial.println ("Displayed");
-                // esp_camera_fb_return (camera.Get_Fb ());
             }
         }
     }
@@ -217,9 +201,7 @@ void loop () {
             long_press_time = millis ();
             save_button_pressed = true;
         } else {
-            if ((millis () - long_press_time) <= LP_DELAY && !long_press_detected) { // short press;
-                Serial.println ("Trying to save photo");
-                
+            if ((millis () - long_press_time) <= LP_DELAY && !long_press_detected) { // short press;                
                 if (sd_present && photo_captured) {
                     char name [32];
                     for (uint32_t i = camera.Get_Image_Count (); i < 4294967295; i++) {
@@ -229,17 +211,12 @@ void loop () {
                             break;
                         }
                     }
-                    Serial.printf ("CHOOSING NUMBER : %d\r\n", camera.Get_Image_Count ());
                     sprintf (name, "/image%d.jpg", camera.Get_Image_Count ());
                     int rc;
                     rc = png.open (name, My_Open, My_Close, My_Read, My_Write, My_Seek);
                     if (rc == PNG_SUCCESS) {
-                        Serial.println ("PNG file opened successfully");
-
                         rc = png.encodeBegin (640, 480, PNG_PIXEL_TRUECOLOR, 24, NULL, 5);
                         if (rc == PNG_SUCCESS) {
-                            Serial.println ("PNG encode began successfully");
-
                             uint8_t *buffer = camera.Get_Fb_Buf ();
                             uint16_t pixel;
                             uint8_t R, G, B;
@@ -247,10 +224,6 @@ void loop () {
                             for (uint16_t i = 0; i < IMAGE_HEIGHT; i++) {
                                 for (uint16_t j = 0; j < IMAGE_WIDTH; j++) {
                                     pixel = ((uint16_t) buffer[(i * 1280) + (j * 2)] << 8) | buffer[(i * 1280) + (j * 2) + 1];
-                                    // R = ((pixel >> 11) & 0x1F);
-                                    // G = ((pixel >> 5) & 0x3F);
-                                    // B = (pixel & 0x1F);
-
                                     R = ((((pixel >> 11) & 0x1F) * 527) + 23) >> 6;
                                     G = ((((pixel >> 5) & 0x3F) * 259) + 33) >> 6;
                                     B = (((pixel & 0x1F) * 527) + 23) >> 6;
@@ -262,27 +235,14 @@ void loop () {
                                     png_truecolor[j * 3 + 0] -= (png_truecolor[j * 3 + 0] < 16 ? png_truecolor[j * 3 + 0] : 16);
                                     png_truecolor[j * 3 + 1] -= (png_truecolor[j * 3 + 1] < 16 ? png_truecolor[j * 3 + 1] : 16);
                                     png_truecolor[j * 3 + 2] += 56;
-
-                                    // png_truecolor[j * 3 + 0] = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 0]) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 0]) - MIDPOINT)));  
-                                    // png_truecolor[j * 3 + 1] = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 1]) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 1]) - MIDPOINT))); 
-                                    // png_truecolor[j * 3 + 2] = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 2]) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (png_truecolor[j * 3 + 2]) - MIDPOINT))); 
-
-                                    // R = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT))); 
-                                    // G = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT))); 
-                                    // B = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT))); 
                                 }
 
                                 png.addLine (png_truecolor);
                                 Display_Message (i == 0 ? SHOW_PROGRESS : UPDATE_PROGRESS, (100 * i) / IMAGE_HEIGHT);
                             }
-
-                            int iDataSize = png.close();
-                            Serial.printf("640 x 480 PNG image compressed to %d bytes\r\n", iDataSize);
-                            Serial.printf ("name : %s\r\n", name);
                         }
                     }                    
 
-                    // camera.Photo_Save ();
                     camera.Set_Image_Count (camera.Get_Image_Count () + 1);
                     preferences.putUInt ("counter", camera.Get_Image_Count ());
                     esp_camera_fb_return (camera.Get_Fb ());
@@ -290,7 +250,6 @@ void loop () {
                     Display_Message (PHOTO_SAVED, camera.Get_Image_Count () - 1);
                     photo_captured = false;
                 } else {
-                    Serial.println ("Unable to save photo, try again");
                     Display_Message (PHOTO_NOT_SAVED);
                 }
             } 
@@ -310,8 +269,6 @@ void Compress_To_Display (uint8_t *buffer) {
     uint16_t x, y;
     uint8_t w, h;
     uint16_t R, G, B;
-    
-    // Serial.printf ("%f | %f %f | %d %d\r\n", warmth, (float) (255) + ((float) (255) * warmth), (float) (255) - ((float) (255) * warmth), (uint8_t) ((float) (255) + ((float) (255) * warmth)), (uint8_t) ((float) (255) - ((float) (255) * warmth)));
 
     uint16_t block[320];
 
@@ -323,42 +280,15 @@ void Compress_To_Display (uint8_t *buffer) {
             G = ((block[i] >> 5) & 0x3F);
             B = (block[i] & 0x1F);
 
-            // R = (uint8_t) ((float) (R) + ((float) (R) * warmth));
-            // B = (uint8_t) ((float) (B) + ((float) (B) * warmth));
-
             R = (uint8_t) ((float) (R) + ((float) (R) * WARMTH_COEF) + ((float) (R) * TINT_COEF));
-            // G = (uint8_t) ((float) (G) + ((float) (G) * WARMTH_COEF) + ((float) (G) * TINT_COEF));
             B = (uint8_t) ((float) (B) + ((float) (B) * WARMTH_COEF) + ((float) (B) * TINT_COEF));
 
             R -= (R < 2 ? R : 2);
             G -= (G < 4 ? G : 4);
-            // G = G;
             B += 7;
 
-            // Serial.printf ("%d  ",B);
-
-            // R = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (R) - MIDPOINT))); 
-            // G = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (G) - MIDPOINT))); 
-            // B = (uint8_t) ((MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT)) < 0 ? 0 : (MIDPOINT + CONTRAST_FACTOR * ((float) (B) - MIDPOINT))); 
-
-            // float rw = 0.299f;
-            // float gw = 0.587f;
-            // float bw = 0.114f;
-            // float gray_r = (float) R * rw;
-            // float gray_g = (float) G * gw;
-            // float gray_b = (float) B * bw;
-            // R = (uint8_t) ((gray_r + 1.2f * ((float) R - gray_r)) < 0 ? 0 : (gray_r + 1.2f * ((float) R - gray_r)));
-            // G = (uint8_t) ((gray_g + 1.2f * ((float) G - gray_g)) < 0 ? 0 : (gray_g + 1.2f * ((float) G - gray_g)));
-            // B = (uint8_t) ((gray_b + 1.2f * ((float) B - gray_b)) < 0 ? 0 : (gray_b + 1.2f * ((float) B - gray_b)));
-
-
-
-
-            // Serial.printf ("%X | %X  %X  %X | %X\r\n", block[i], R, G, B, (R << 11) | ((G << 5) & 0x7FF) | (B & 0x1F));
-            
             block[i] = (R << 11) | ((G << 5) & 0x7FF) | (B & 0x1F);
         }
-        // Serial.println ();
         tft.pushImage (0, j, 320, 1, block);
     }
 }
