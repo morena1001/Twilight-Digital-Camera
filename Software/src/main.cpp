@@ -113,7 +113,7 @@ void setup () {
     digitalWrite (BL_PIN, LOW);
 
     tft.init ();
-    tft.setRotation (1);
+    tft.setRotation (3);
     // tft.invertDisplay (1);
     tft.setSwapBytes(true);
     tft.setTextSize (1);
